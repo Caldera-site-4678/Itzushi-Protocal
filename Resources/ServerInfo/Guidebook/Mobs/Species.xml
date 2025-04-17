@@ -1,23 +1,12 @@
 <Document>
   # Species
 
-  Nanotrasen employs a variety of sapient species.
+  Iris Industries employs a variety of sapient species.
 
-  <!-- Trauma - Completely rewritten -->
+  <!-- base trauma with aliens removed -->
   <Box>
     <GuideEntityEmbed Entity="AppearanceHuman" Caption="Human"/>
-    <GuideEntityEmbed Entity="AppearanceVox" Caption="Vox"/>
-    <GuideEntityEmbed Entity="AppearanceMoth" Caption="Moth Person"/>
-    <GuideEntityEmbed Entity="AppearanceReptilian" Caption="Reptilian"/>
-  </Box>
-  <Box>
-    <GuideEntityEmbed Entity="AppearanceArachnid" Caption="Arachnid"/>
-    <GuideEntityEmbed Entity="AppearanceDiona" Caption="Diona"/>
-    <GuideEntityEmbed Entity="AppearanceDwarf" Caption="Dwarf"/>
-    <GuideEntityEmbed Entity="AppearanceSlimePerson" Caption="Slime Person"/>
-  </Box>
-  <Box>
-    <GuideEntityEmbed Entity="AppearanceIPC" Caption="IPC"/>
-  <GuideEntityEmbed Entity="MobDecapoid" Caption="Decapoid"/>
+<!--  - DeltaV -->
+  <GuideEntityEmbed Entity="MobKitsune" Caption="Kitsune"/>
   </Box>
 </Document>
