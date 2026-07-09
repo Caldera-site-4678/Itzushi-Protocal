@@ -1,23 +1,16 @@
-<p align="center"> <img alt="Space Station 14" width="750" height="600" src="https://github.com/Trauma-Station/Trauma-Station/blob/master/Resources/Textures/Logo/logo.png" /></p>
+# Itzushi Project 「出石 PROJECT」
+<p align="center">
+<img width="512" height="512" alt="bmlnZ2EgaSBkaWRudCB3YW50IHRoaXMgdG8gYmUgYW4gc3MxNCBmb3Jr" src="https://github.com/user-attachments/assets/2d6636e6-9e7d-448c-8202-2b264c4a3d13" />
+</p>
 
-This is a fork of [SS14](https://github.com/space-wizards/space-station-14) called Trauma Station.
+Itzushi project is a survival horror server based on the visual novels of corpse party and Japanese folklore, group together and survive the oncoming horrors of the night.
 
 ## Links
 
-[Trauma Station Discord](https://discord.gg/7ZKs7HadK5) | [Trauma Station Wiki](https://wiki.traumastation.com/wiki/Main_Page) | [Devbus Discord Server](https://discord.gg/f3rJaCuK)
+[Discord Server](https://discord.gg/r4zhfxs6e9)
 
-## Documentation/Wiki
+This project is a fork of [Trauma Station](github.com/Trauma-Station/Trauma-Station/), which is a fork of [SS14](https://github.com/space-wizards/space-station-14).
 
-Trauma itself has a non-technical wiki on its content [here](https://wiki.traumastation.com/wiki/Main_Page)
-
-SS14 Docs [docs site](https://docs.spacestation14.com/) has documentation on SS14's content, engine, game design, and more. It also has lots of resources for new contributors to the project.
-
-## Contributing
-
-We are happy to accept contributions from anybody. Get in [our Discord Server](https://discord.gg/7ZKs7HadK5) if you want to help. Feel free to check the [list of issues](https://github.com/Trauma-Station/Trauma-Station/issues) that need to be done and anybody can pick them up. Don't be afraid to ask for help either!
-Please read the [Contribution Guidelines](/CONTRIBUTING.md) before opening a pull request.
-
-We are not accepting translations of the game on our repository.
 
 ## AI-generated contributions disclaimer
 This project does not accept low-effort or wholesale AI-generated contributions. Examples include, but are not limited to:
