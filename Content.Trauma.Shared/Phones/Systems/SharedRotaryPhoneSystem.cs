@@ -209,12 +209,19 @@ public abstract partial class SharedRotaryPhoneSystem : EntitySystem
         if (ent.Comp.ConnectedPhoneStand != null)
             UpdateAppearance(ent.Comp.ConnectedPhoneStand.Value, RotaryPhoneVisuals.Ring);
 
-        var name = Loc.GetString("phone-popup-ring", ("location", args.Phone.Comp.Name ?? Loc.GetString("phone-number-unknown")));
-
-        _popup.PopupEntity(name, ent.Owner, PopupType.Medium);
+        if (args.Phone is { } caller)
+        {
+            var name = Loc.GetString("phone-popup-ring", ("location", caller.Comp.Name ?? Loc.GetString("phone-number-unknown")));
+            _popup.PopupEntity(name, ent.Owner, PopupType.Medium);
+            ent.Comp.ConnectedPhone = caller.Owner;
+        }
+        else
+        {
+            ent.Comp.ConnectedPhone = null;
+        }
 
         RaiseDeviceNetworkEvent(ent.Comp.ConnectedPhoneStand, ent.Comp.RingPort);
-        ent.Comp.ConnectedPhone = args.Phone.Owner;
+
         Dirty(ent);
     }
 
@@ -256,6 +263,52 @@ public abstract partial class SharedRotaryPhoneSystem : EntitySystem
         DisconnectPhones(ent.Comp);
         Dirty(ent);
     }
+
+    #region Itzushi add - External ringer support (e.g. Teke Teke's phone aura)
+
+    /// <summary>
+    /// Rings <paramref name="target"/> as if <paramref name="caller"/> dialed it, without requiring a caller.
+    /// Intended for non-player callers (ghost abilities, station announcements, etc.)that need to ring a real
+    /// RotaryPhoneComponent using the same visuals/sound/popup as a normal call.
+    /// </summary>
+    public bool TryRingPhone(EntityUid caller, Entity<RotaryPhoneComponent> target)
+    {
+        if (target.Comp.Engaged || target.Comp.ConnectedPhone != null || target.Comp.SoundEntity != null)
+            return false;
+
+
+        var ev = new PhoneRingEvent(null);
+        RaiseLocalEvent(target.Owner, ref ev);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reverses the effects of <see cref="TryRingPhone"/> on a phone that was never answered.
+    /// Unlike DisconnectPhones, this does NOT raise PhoneHungUpEvent on the other end, since there
+    /// is no real call in progress to notify; it only clears the ringing state that OnRing set up.
+    /// Safe to call even if the phone was answered/hung up through normal means in the meantime
+    /// (it no-ops if ConnectedPhone no longer points back at the expected caller).
+    /// </summary>
+    public void CancelRing(Entity<RotaryPhoneComponent> target, EntityUid expectedCaller)
+    {
+        if (target.Comp.ConnectedPhone != expectedCaller || target.Comp.Connected)
+            return; // already answered/connected for real, or already changed
+
+        if (target.Comp.SoundEntity != null)
+            target.Comp.SoundEntity = _audio.Stop(target.Comp.SoundEntity);
+
+        target.Comp.ConnectedPhone = null;
+        target.Comp.Engaged = false;
+
+        if (target.Comp.ConnectedPhoneStand != null)
+            UpdateAppearance(target.Comp.ConnectedPhoneStand.Value, RotaryPhoneVisuals.Base);
+
+        Dirty(target);
+    }
+
+    #endregion
+
 
     #region Helpers
 

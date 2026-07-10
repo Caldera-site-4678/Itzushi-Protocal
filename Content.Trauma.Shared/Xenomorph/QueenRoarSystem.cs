@@ -48,8 +48,8 @@ public sealed partial class QueenRoarSystem : EntitySystem
             return;
 
         _popup.PopupPredicted(
-            Loc.GetString("queen-roar-start"),
-            Loc.GetString("queen-roar-start-others"),
+            Loc.GetString(ent.Comp.RoarStartPopup),
+            Loc.GetString(ent.Comp.RoarStartOthersPopup),
             ent.Owner,
             ent.Owner,
             PopupType.LargeCaution);
@@ -89,7 +89,7 @@ public sealed partial class QueenRoarSystem : EntitySystem
             _stun.KnockdownOrStun(mob, TimeSpan.FromSeconds(ent.Comp.RoarStunTime));
         }
 
-        _popup.PopupPredicted(Loc.GetString("queen-roar-complete"), ent.Owner, args.User, PopupType.MediumCaution);
+        _popup.PopupPredicted(Loc.GetString(ent.Comp.RoarCompletePopup), ent.Owner, args.User, PopupType.MediumCaution);
 
         args.Handled = true;
     }

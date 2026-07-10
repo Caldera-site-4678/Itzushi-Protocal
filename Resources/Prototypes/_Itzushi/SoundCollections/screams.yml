@@ -1,0 +1,5 @@
+- type: soundCollection
+  id: TekeTekeScreams
+  files:
+  - /Audio/_Itzushi/TekeTeke/scream3.ogg
+  - /Audio/_Itzushi/TekeTeke/scream4.ogg

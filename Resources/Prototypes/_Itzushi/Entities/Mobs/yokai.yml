@@ -1,0 +1,187 @@
+# Teke Teke Banshee Scream Action
+- type: entity
+  parent: ActionQueenroar
+  id: ActionTekeTekeBansheeScream
+  name: Banshee Scream
+  description: Scream like a banshee to stun all enemies around you.
+  components:
+  - type: Action
+    icon:
+      sprite: _Itzushi/Mobs/Ghosts/teke_teke.rsi
+      state: screech
+    useDelay: 60
+    priority: 5
+  - type: InstantAction
+    event: !type:QueenRoarActionEvent
+
+
+- type: entity
+  parent: [ MobElementalBase, MobCombat ]
+  id: BaseMobMonsterGhostGrounded
+  name: Ghost
+  abstract: true
+  description: A ghost treading along the ground.
+  components:
+  - type: NpcFactionMember
+    factions:
+    - NpcFactionLostSouls
+
+  - type: HTN
+    rootTask:
+      task: SimpleHostileCompound
+
+  # FloatVisual
+  - type: FloatBobVisuals
+    amplitude: 0.15 # distance of bobbing
+    frequency: 0.5 # cycle speed
+
+  - type: Sprite
+    drawdepth: Mobs
+    state: alive
+    color: "#FFFFFFB3"
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 1
+    baseSprintSpeed: 2
+
+  - type: MeleeWeapon
+    attackRate: 0.5
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    angle: 0
+    animation: WeaponArcClaw
+    damage:
+      types:
+        Structural: 150
+        Slash: 20
+        Blunt: 20
+        Heat: 20
+        Piercing: 20
+        Radiation: 10
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 1
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+#MARK: Base Teke teke
+- type: entity
+  parent: BaseMobMonsterGhostGrounded
+  id: BaseMobMonsterTekeTeke
+  name: Teke teke
+  abstract: true
+  description: The vengeful ghost of a woman's upper half crawling on the ground, haunting urban areas and roads.
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Mobs/Ghosts/teke_teke.rsi
+
+  # abilities
+  - type: Telephone
+  - type: PhoneRingerAura
+
+  - type: FloatBobVisuals
+    amplitude: 0.05
+    frequency: 0.5
+
+  - type: FootstepModifier
+    footstepSoundCollection:
+      collection: FootstepHighHeels # TODO: add a "teke teke" scratching movement sound collection
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 0.5
+    baseSprintSpeed: 1.0
+    weightlessWalkSpeed: 0.3
+    weightlessSprintSpeed: 0.7
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 75
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+  - type: MeleeWeapon
+    attackRate: 0.5
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    angle: 0
+    animation: WeaponArcSlash
+    damage:
+      types:
+        Structural: 120
+        Slash: 30
+        Piercing: 10
+        Radiation: 4
+
+#MARK: Alpha Teke teke
+- type: entity
+  parent: BaseMobMonsterTekeTeke
+  id: MobMonsterAlphaTekeTeke
+  components:
+
+  # abilities
+  - type: QueenRoar
+    roarAction: ActionTekeTekeBansheeScream
+    soundRoar:
+      collection: TekeTekeScreams
+    soundRoarStart: null
+    roarStartPopup: banshee-scream-start
+    roarStartOthersPopup: banshee-scream-start-others
+    roarCompletePopup: banshee-scream-complete
+    roarStunTime: 2.0
+    roarDelay: 0.2
+  - type: NPCUseActionOnTarget
+    actionId: ActionTekeTekeBansheeScream
+  - type: TimedSpawner
+    prototypes: [ MobMonsterBetaTekeTeke ]
+    chance: 0.5
+    intervalSeconds: 15.0
+    maximumEntitiesSpawned: 3
+
+#MARK: Beta Teke teke
+- type: entity
+  parent: BaseMobMonsterTekeTeke
+  id: MobMonsterBetaTekeTeke
+  name: Lesser Teke teke
+  components:
+  - type: ScaleVisuals
+    scale: 0.8, 0.8
+
+  # abilities
+  - type: PackDamage
+
+  # should be much less damage than the Alpha Teke teke
+  - type: MeleeWeapon
+    attackRate: 0.5
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    angle: 0
+    animation: WeaponArcSlash
+    damage:
+      types:
+        Structural: 60
+        Slash: 5
+        Piercing: 2
+        Radiation: 1

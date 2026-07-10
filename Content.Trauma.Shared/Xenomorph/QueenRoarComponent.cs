@@ -56,4 +56,13 @@ public sealed partial class QueenRoarComponent : Component
     /// </summary>
     [DataField]
     public float RoarDelay = 3f;
+
+    [DataField]
+    public LocId RoarStartPopup = "queen-roar-start";
+
+    [DataField]
+    public LocId RoarStartOthersPopup = "queen-roar-start-others";
+
+    [DataField]
+    public LocId RoarCompletePopup = "queen-roar-complete";
 }
