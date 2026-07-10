@@ -1,7 +1,7 @@
 namespace Content.Server._Itzushi.TekeTeke;
 
 /// <summary>
-/// PhoneRingerAura Entities require a TelephoneComponent and RotaryPhoneComponent to interface with each.
+/// PhoneRingerAura Entities require a TelephoneComponent
 /// </summary>
 [RegisterComponent]
 public sealed partial class PhoneRingerAuraComponent : Component

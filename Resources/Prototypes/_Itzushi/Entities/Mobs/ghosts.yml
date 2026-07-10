@@ -59,10 +59,10 @@
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
 
-#MARK: Teke teke
+#MARK: Alpha Teke teke
 - type: entity
   parent: BaseMobMonsterGhostGrounded
-  id: MobMonsterTekeTeke
+  id: MobMonsterAlphaTekeTeke
   name: Teke teke
   description: The vengeful ghost of a woman's upper half crawling on the ground, haunting urban areas and roads.
   components:
@@ -109,9 +109,32 @@
     animation: WeaponArcSlash
     damage:
       types:
-        Structural: 150
-        Slash: 20
-        Blunt: 20
-        Heat: 20
-        Piercing: 20
-        Radiation: 10
+        Structural: 120
+        Slash: 30
+        Piercing: 10
+        Radiation: 4
+
+#MARK: Beta Teke teke
+- type: entity
+  parent: MobMonsterAlphaTekeTeke
+  id: MobMonsterBetaTekeTeke
+  name: Beta Teke teke
+  description: The vengeful ghost of a woman's upper half crawling on the ground, haunting urban areas and roads.
+  components:
+
+  # abilities
+  - type: PackDamage
+
+  # for now, Beta Teke teke just does less damage than Alpha Teke
+  - type: MeleeWeapon
+    attackRate: 0.5
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    angle: 0
+    animation: WeaponArcSlash
+    damage:
+      types:
+        Structural: 60
+        Slash: 10
+        Piercing: 5
+        Radiation: 4
