@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Linq;
 using Content.Shared.Weapons.Melee.Events;
 
-namespace Content.Server._Itzushi.TekeTeke;
+namespace Content.Server._Itzushi.Yokai;
 
 public sealed partial class PackDamageSystem : EntitySystem
 {

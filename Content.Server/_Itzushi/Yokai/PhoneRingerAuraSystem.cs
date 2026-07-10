@@ -4,7 +4,7 @@ using Content.Trauma.Shared.Phones.Components;
 using Content.Trauma.Shared.Phones.Systems;
 using Robust.Shared.Timing;
 
-namespace Content.Server._Itzushi.TekeTeke;
+namespace Content.Server._Itzushi.Yokai;
 
 /// <summary>
 /// Makes an entity (e.g. Teke-Teke) periodically call every telephone within range. After a set number of
@@ -84,6 +84,9 @@ public sealed partial class PhoneRingerAuraSystem : EntitySystem
                 continue;
 
             if (!_telephone.IsTelephonePowered(candidate) || _telephone.IsTelephoneEngaged(candidate))
+                continue;
+
+            if (candidate.Comp.CurrentState == TelephoneState.Ringing)
                 continue;
 
             receivers.Add(candidate);

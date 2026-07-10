@@ -273,8 +273,9 @@ public abstract partial class SharedRotaryPhoneSystem : EntitySystem
     /// </summary>
     public bool TryRingPhone(EntityUid caller, Entity<RotaryPhoneComponent> target)
     {
-        if (target.Comp.Engaged || target.Comp.ConnectedPhone != null)
+        if (target.Comp.Engaged || target.Comp.ConnectedPhone != null || target.Comp.SoundEntity != null)
             return false;
+
 
         var ev = new PhoneRingEvent(null);
         RaiseLocalEvent(target.Owner, ref ev);
