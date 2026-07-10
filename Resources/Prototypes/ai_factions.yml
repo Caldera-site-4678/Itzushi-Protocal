@@ -305,3 +305,24 @@
   # <Trauma>
   - Insurgent
   # </Trauma>
+
+
+# Itzushi Add - Errant/Lost Souls
+- type: npcFaction
+  id: NpcFactionLostSouls
+  hostile:
+  - NanoTrasen
+  - Syndicate
+  - SimpleHostile
+  - SimpleNeutral
+  - Passive
+  - PetsNT
+  - Zombie
+  - Xeno
+  - Dragon
+  - Mouse
+  - Revolutionary
+  - AllHostile
+  - Wizard
+  - Xenoborg
+  - SalvageMob

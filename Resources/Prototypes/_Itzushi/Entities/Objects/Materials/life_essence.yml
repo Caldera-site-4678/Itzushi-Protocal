@@ -1,0 +1,60 @@
+- type: stack
+  id: StackLifeEssence
+  name: life essence
+  icon: { sprite: /Textures/_Itzushi/Objects/Materials/life_essence.rsi, state: life_essence_100 }
+  spawn: MaterialObjectLifeEssenceStack1
+  maxCount: 100
+
+- type: entity
+  parent: BaseItem
+  id: MaterialObjectLifeEssence
+  name: life essence
+  description: A solid to the touch yet non-physical substance.
+  suffix: Full
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Materials/life_essence.rsi
+    state: life_essence_100
+    layers:
+    - state: life_essence_100
+      map: ["base"]
+  - type: Item
+    sprite: _Itzushi/Objects/Materials/life_essence.rsi
+    heldPrefix: life_essence
+  - type: Stack
+    stackType: StackLifeEssence
+    count: 100
+    baseLayer: base
+    layerStates:
+    - life_essence_1
+    - life_essence_20
+    - life_essence_50
+    - life_essence_100
+    layerFunction: Threshold
+  - type: StackLayerThreshold
+    thresholds: [1, 20, 50, 100]
+  - type: Appearance
+
+- type: entity
+  parent: MaterialObjectLifeEssence
+  id: MaterialObjectLifeEssenceStack1
+  suffix: 1
+  components:
+  - type: Stack
+    count: 1
+
+- type: entity
+  parent: MaterialObjectLifeEssence
+  id: MaterialObjectLifeEssenceStack20
+  suffix: 20
+  components:
+  - type: Stack
+    count: 20
+
+- type: entity
+  parent: MaterialObjectLifeEssence
+  id: MaterialObjectLifeEssenceStack50
+  suffix: 50
+  components:
+  - type: Stack
+    count: 50
