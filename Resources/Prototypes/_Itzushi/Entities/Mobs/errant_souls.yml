@@ -1,0 +1,330 @@
+#MARK: Base
+- type: entity
+  parent: [ MobElementalBase, MobCombat ]
+  id: BaseMobMonsterErrantSoul
+  name: errant soul
+  abstract: true
+  description: A soul that strayed too far from the path or was stuck too long in limbo, now roaming in search of your life essence, at all costs.
+  components:
+  - type: NpcFactionMember
+    factions:
+    - NpcFactionLostSouls
+
+  - type: HTN
+    rootTask:
+      task: SimpleHostileCompound
+
+  # SCRAPPED using AlwaysWeightless component; forces errant souls to fucking ignore gravity cuz FUCK gravity
+  # - type: AlwaysWeightless
+
+  # SCRAPPED using AlwaysWeightless component; lets them move while weightless cuz they a ghost
+  # - type: CanMoveInAir
+
+  # SCRAPPED using AlwaysWeightless component; lets them move freely in weightless movement instead of needing to push off walls like a greytide retard who
+  # forgot to grab a fire extinguisher roundstart
+  # - type: MovementAlwaysTouching
+
+  # FloatVisual; clientside bobbing effect...honestly the weightless component might not be needed... -pierow
+  - type: FloatBobVisuals
+    amplitude: 0.15 # distance of bobbing
+    frequency: 0.5 # cycle speed
+
+  - type: Sprite
+    drawdepth: Mobs
+    state: alive
+    color: "#FFFFFFB3" # 30% transparency, makes em look ghostly
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 1
+    baseSprintSpeed: 2
+    # weightlessWalkSpeed: 1
+    # weightlessSprintSpeed: 2
+
+  - type: MeleeWeapon
+    attackRate: 0.5
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    angle: 0
+    animation: WeaponArcClaw
+    damage:
+      types:
+        Structural: 150
+        Slash: 20
+        Blunt: 20
+        Heat: 20
+        Piercing: 20
+        Radiation: 10
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 1
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+#MARK: Base (Grounded, for Rattle/((Stalker??)); only uses FloatVisual...yes I know I am a chud for doing it this way but fuckit -pierow)
+- type: entity
+  parent: [ MobElementalBase, MobCombat ]
+  id: BaseMobMonsterErrantSoulGrounded
+  name: errant soul
+  abstract: true
+  description: A soul that strayed too far from the path or was stuck too long in limbo, now roaming in search of your life essence, at all costs.
+  components:
+  - type: NpcFactionMember
+    factions:
+    - NpcFactionLostSouls
+
+  - type: HTN
+    rootTask:
+      task: SimpleHostileCompound
+
+  # FloatVisual
+  - type: FloatBobVisuals
+    amplitude: 0.15 # distance of bobbing
+    frequency: 0.5 # cycle speed
+
+  - type: Sprite
+    drawdepth: Mobs
+    state: alive
+    color: "#FFFFFFB3"
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 1
+    baseSprintSpeed: 2
+
+  - type: MeleeWeapon
+    attackRate: 0.5
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    angle: 0
+    animation: WeaponArcClaw
+    damage:
+      types:
+        Structural: 150
+        Slash: 20
+        Blunt: 20
+        Heat: 20
+        Piercing: 20
+        Radiation: 10
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 1
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+#MARK: Stalker
+- type: entity
+  parent: BaseMobMonsterErrantSoulGrounded
+  id: MobMonsterErrantSoulStalker
+  name: stalker errant soul
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Mobs/ErrantSouls/errant_soul_stalker.rsi
+    color: "#FFFFFFB3"
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 5.5
+    baseSprintSpeed: 5.5
+
+  - type: MeleeWeapon
+    attackRate: 2
+    damage:
+      types:
+        Slash: 8
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 30
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+#MARK: Crackle
+- type: entity
+  parent: BaseMobMonsterErrantSoul
+  id: MobMonsterErrantSoulCrackle
+  name: crackle errant soul
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Mobs/ErrantSouls/errant_soul_crackle.rsi
+    color: "#FFFFFFB3"
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2.5
+    baseSprintSpeed: 2.5
+    # weightlessWalkSpeed: 2.5
+    # weightlessSprintSpeed: 2.5
+
+  - type: MeleeWeapon
+    soundHit:
+      collection: MetalThud
+    attackRate: 0.5
+    damage:
+      types:
+        Slash: 20
+        Piercing: 10
+
+  - type: ReagentOnMeleeHit
+    reagent: Phlogiston
+    quantity: 4
+    chance: 0.33
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 75
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+#MARK: Toxin
+- type: entity
+  parent: BaseMobMonsterErrantSoul
+  id: MobMonsterErrantSoulToxin
+  name: toxin errant soul
+  description: A soul that strayed too far from the path or was stuck too long in limbo...formally a Chernobyl cleaner, leaking poison and radiation.
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Mobs/ErrantSouls/errant_soul_toxin.rsi
+    color: "#FFFFFFB3"
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2.5
+    baseSprintSpeed: 2.5
+    # weightlessWalkSpeed: 2.5
+    # weightlessSprintSpeed: 2.5
+
+  - type: MeleeWeapon
+    attackRate: 1
+    damage:
+      types:
+        Blunt: 4
+        Poison: 6
+        Radiation: 4
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 60
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 1
+            max: 2
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+
+#MARK: Rattle
+- type: entity
+  parent: BaseMobMonsterErrantSoulGrounded
+  id: MobMonsterErrantSoulRattle
+  name: rattle errant soul
+  description: A soul that strayed too far from the path or was stuck too long in limbo...formally a Spetsnaz with enough cognition left to fill your belly full of lead.
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _Itzushi/Mobs/ErrantSouls/errant_soul_rattle.rsi
+      state: alive
+      color: "#FFFFFFB3"
+
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 0.6
+    baseSprintSpeed: 0.6
+
+  # override the base melee AI with ranged hostile AI
+  - type: HTN
+    rootTask:
+      task: SimpleRangedHostileCompound
+
+  # ~100 boolets, then 1 boolet every 0.75 seconds
+  - type: RechargeBasicEntityAmmo
+    rechargeCooldown: 0.75
+
+  - type: BasicEntityAmmoProvider
+    proto: BulletLightRifle
+    capacity: 100
+    count: 100
+
+  - type: Gun
+    fireRate: 8
+    useKey: false
+    selectedMode: FullAuto
+    availableModes:
+    - FullAuto
+    minAngle: 20
+    maxAngle: 60
+    angleIncrease: 10
+    angleDecay: 2
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/lmg.ogg
+
+  # weak melee backup...dobut it will be needed now though
+  - type: MeleeWeapon
+    attackRate: 0.5
+    damage:
+      types:
+        Blunt: 5
+
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 125
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectLifeEssenceStack1:
+            min: 2
+            max: 5
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
