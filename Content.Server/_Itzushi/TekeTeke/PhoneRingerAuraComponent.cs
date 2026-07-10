@@ -16,7 +16,7 @@ public sealed partial class PhoneRingerAuraComponent : Component
     /// How long to wait between ringing events.
     /// </summary>
     [DataField]
-    public TimeSpan RingerInterval = TimeSpan.FromSeconds(10);
+    public TimeSpan RingerInterval = TimeSpan.FromSeconds(20);
 
     /// <summary>
     ///  Maximum number of ringing events before the aura goes dormant.
@@ -28,7 +28,7 @@ public sealed partial class PhoneRingerAuraComponent : Component
     ///  Time to wait before the number of ringing events resets.
     /// </summary>
     [DataField]
-    public TimeSpan CallResetInterval = TimeSpan.FromSeconds(90);
+    public TimeSpan CallResetInterval = TimeSpan.FromSeconds(120);
 
     /// <summary>
     ///  Tracked because RotaryPhoneComponent has no ring-timeout of its own.

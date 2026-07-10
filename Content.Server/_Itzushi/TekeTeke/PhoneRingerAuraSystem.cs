@@ -98,10 +98,6 @@ public sealed partial class PhoneRingerAuraSystem : EntitySystem
 
     private bool RingNearbyRotaryPhones(EntityUid uid, PhoneRingerAuraComponent aura)
     {
-        if (!TryComp<RotaryPhoneComponent>(uid, out var rotaryPhone))
-            return false;
-
-        var source = new Entity<RotaryPhoneComponent>(uid, rotaryPhone);
         var rangAny = false;
 
         foreach (var candidate in _lookup.GetEntitiesInRange<RotaryPhoneComponent>(Transform(uid).Coordinates, aura.Radius))
@@ -109,7 +105,7 @@ public sealed partial class PhoneRingerAuraSystem : EntitySystem
             if (candidate.Owner == uid)
                 continue;
 
-            if (!_rotaryPhone.TryRingPhone(source, candidate))
+            if (!_rotaryPhone.TryRingPhone(uid, candidate))
                 continue;
 
             aura.RungRotaryPhones.Add(candidate.Owner);

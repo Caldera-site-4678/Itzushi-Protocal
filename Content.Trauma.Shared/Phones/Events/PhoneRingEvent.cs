@@ -5,4 +5,4 @@ using Content.Trauma.Shared.Phones.Components;
 namespace Content.Trauma.Shared.Phones.Events;
 
 [ByRefEvent]
-public record struct PhoneRingEvent(Entity<RotaryPhoneComponent> Phone);
+public record struct PhoneRingEvent(Entity<RotaryPhoneComponent>? Phone);

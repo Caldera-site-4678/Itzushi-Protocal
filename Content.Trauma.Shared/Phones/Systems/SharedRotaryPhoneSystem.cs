@@ -209,12 +209,19 @@ public abstract partial class SharedRotaryPhoneSystem : EntitySystem
         if (ent.Comp.ConnectedPhoneStand != null)
             UpdateAppearance(ent.Comp.ConnectedPhoneStand.Value, RotaryPhoneVisuals.Ring);
 
-        var name = Loc.GetString("phone-popup-ring", ("location", args.Phone.Comp.Name ?? Loc.GetString("phone-number-unknown")));
-
-        _popup.PopupEntity(name, ent.Owner, PopupType.Medium);
+        if (args.Phone is { } caller)
+        {
+            var name = Loc.GetString("phone-popup-ring", ("location", caller.Comp.Name ?? Loc.GetString("phone-number-unknown")));
+            _popup.PopupEntity(name, ent.Owner, PopupType.Medium);
+            ent.Comp.ConnectedPhone = caller.Owner;
+        }
+        else
+        {
+            ent.Comp.ConnectedPhone = null;
+        }
 
         RaiseDeviceNetworkEvent(ent.Comp.ConnectedPhoneStand, ent.Comp.RingPort);
-        ent.Comp.ConnectedPhone = args.Phone.Owner;
+
         Dirty(ent);
     }
 
@@ -260,18 +267,16 @@ public abstract partial class SharedRotaryPhoneSystem : EntitySystem
     #region Itzushi add - External ringer support (e.g. Teke Teke's phone aura)
 
     /// <summary>
-    /// Rings <paramref name="target"/> as if <paramref name="caller"/> dialed it, without going through
-    /// the dial-pad flow. Intended for non-player callers (ghost abilities, station announcements, etc.)
-    /// that need to ring a real RotaryPhoneComponent using the same visuals/sound/popup as a normal call.
-    /// Returns false if the target is already busy (Engaged or already has a ConnectedPhone), so the
-    /// caller can decide to skip it rather than interrupt an in-progress call.
+    /// Rings <paramref name="target"/> as if <paramref name="caller"/> dialed it, without requiring a caller.
+    /// Intended for non-player callers (ghost abilities, station announcements, etc.)that need to ring a real
+    /// RotaryPhoneComponent using the same visuals/sound/popup as a normal call.
     /// </summary>
-    public bool TryRingPhone(Entity<RotaryPhoneComponent> caller, Entity<RotaryPhoneComponent> target)
+    public bool TryRingPhone(EntityUid caller, Entity<RotaryPhoneComponent> target)
     {
         if (target.Comp.Engaged || target.Comp.ConnectedPhone != null)
             return false;
 
-        var ev = new PhoneRingEvent(caller);
+        var ev = new PhoneRingEvent(null);
         RaiseLocalEvent(target.Owner, ref ev);
 
         return true;
