@@ -257,6 +257,53 @@ public abstract partial class SharedRotaryPhoneSystem : EntitySystem
         Dirty(ent);
     }
 
+    #region Itzushi add - External ringer support (e.g. Teke Teke's phone aura)
+
+    /// <summary>
+    /// Rings <paramref name="target"/> as if <paramref name="caller"/> dialed it, without going through
+    /// the dial-pad flow. Intended for non-player callers (ghost abilities, station announcements, etc.)
+    /// that need to ring a real RotaryPhoneComponent using the same visuals/sound/popup as a normal call.
+    /// Returns false if the target is already busy (Engaged or already has a ConnectedPhone), so the
+    /// caller can decide to skip it rather than interrupt an in-progress call.
+    /// </summary>
+    public bool TryRingPhone(Entity<RotaryPhoneComponent> caller, Entity<RotaryPhoneComponent> target)
+    {
+        if (target.Comp.Engaged || target.Comp.ConnectedPhone != null)
+            return false;
+
+        var ev = new PhoneRingEvent(caller);
+        RaiseLocalEvent(target.Owner, ref ev);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reverses the effects of <see cref="TryRingPhone"/> on a phone that was never answered.
+    /// Unlike DisconnectPhones, this does NOT raise PhoneHungUpEvent on the other end, since there
+    /// is no real call in progress to notify; it only clears the ringing state that OnRing set up.
+    /// Safe to call even if the phone was answered/hung up through normal means in the meantime
+    /// (it no-ops if ConnectedPhone no longer points back at the expected caller).
+    /// </summary>
+    public void CancelRing(Entity<RotaryPhoneComponent> target, EntityUid expectedCaller)
+    {
+        if (target.Comp.ConnectedPhone != expectedCaller || target.Comp.Connected)
+            return; // already answered/connected for real, or already changed
+
+        if (target.Comp.SoundEntity != null)
+            target.Comp.SoundEntity = _audio.Stop(target.Comp.SoundEntity);
+
+        target.Comp.ConnectedPhone = null;
+        target.Comp.Engaged = false;
+
+        if (target.Comp.ConnectedPhoneStand != null)
+            UpdateAppearance(target.Comp.ConnectedPhoneStand.Value, RotaryPhoneVisuals.Base);
+
+        Dirty(target);
+    }
+
+    #endregion
+
+
     #region Helpers
 
     private void ConnectPhones(RotaryPhoneComponent thisPhone, RotaryPhoneComponent otherPhone, EntityUid uid)
