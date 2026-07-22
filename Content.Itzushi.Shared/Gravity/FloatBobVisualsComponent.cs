@@ -1,7 +1,4 @@
-using Robust.Shared.GameStates;
-using System.Numerics;
-
-namespace Content.Shared._Itzushi.Gravity;
+namespace Content.Itzushi.Shared.Gravity;
 
 /// <summary>
 /// client component that makes an entity's sprite bob up and down.

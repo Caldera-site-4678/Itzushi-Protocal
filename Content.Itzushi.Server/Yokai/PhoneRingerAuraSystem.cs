@@ -4,11 +4,11 @@ using Content.Trauma.Shared.Phones.Components;
 using Content.Trauma.Shared.Phones.Systems;
 using Robust.Shared.Timing;
 
-namespace Content.Server._Itzushi.Yokai;
+namespace Content.Itzushi.Server.Yokai;
 
 /// <summary>
 /// Makes an entity (e.g. Teke-Teke) periodically call every telephone within range. After a set number of
-/// "ringing events" the aura goes dormant until <see cref="PhoneRingerAuraComponent.CallResetInterval"/> passes.
+/// "ringing events" the aura goes dormant until <see cref="Itzushi.Server.Yokai.PhoneRingerAuraComponent.CallResetInterval"/> passes.
 /// Rings both TelephoneComponents and RotaryPhoneComponents from Trauma Station which are unrelated systems.
 /// </summary>
 public sealed partial class PhoneRingerAuraSystem : EntitySystem

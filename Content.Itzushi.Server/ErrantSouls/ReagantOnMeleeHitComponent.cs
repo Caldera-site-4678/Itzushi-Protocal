@@ -1,6 +1,6 @@
 using Content.Shared.FixedPoint;
 
-namespace Content.Server._Itzushi.ErrantSouls;
+namespace Content.Itzushi.Server.ErrantSouls;
 
 [RegisterComponent]
 public sealed partial class ReagentOnMeleeHitComponent : Component

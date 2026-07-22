@@ -1,4 +1,4 @@
-namespace Content.Server._Itzushi.Yokai;
+namespace Content.Itzushi.Server.Yokai;
 
 [RegisterComponent]
 public sealed partial class PackDamageComponent : Component

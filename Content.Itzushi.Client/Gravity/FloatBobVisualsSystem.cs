@@ -1,9 +1,7 @@
-using Content.Shared._Itzushi.Gravity;
-using Robust.Client.GameObjects;
+using Content.Itzushi.Shared.Gravity;
 using Robust.Shared.Timing;
-using System.Numerics;
 
-namespace Content.Client._Itzushi.Gravity;
+namespace Content.Itzushi.Client.Gravity;
 
 /// <summary>
 /// handles visual bobbing for floating entities
