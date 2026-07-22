@@ -6,7 +6,7 @@
 	<Import Project="../MSBuild/Content.props" />
 
 	<ItemGroup>
-		<ProjectReference Include="../Content.Common/Content.Common.csproj" />
+    <ProjectReference Include="../Content.Trauma.Common/Content.Trauma.Common.csproj" />
 	</ItemGroup>
 
 	<Import Project="../RobustToolbox/Imports/Shared.props" />

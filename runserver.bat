@@ -1,3 +1,3 @@
 @echo off
-dotnet run --project Content.Trauma.Server
+dotnet run --project Content.Itzushi.Server
 pause

@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Itzushi Server+Client" type="CompoundRunConfigurationType">
+    <toRun name="Content.Itzushi.Client" type="DotNetProject" />
+    <toRun name="Content.Itzushi.Server" type="DotNetProject" />
+    <method v="2" />
+  </configuration>
+</component>

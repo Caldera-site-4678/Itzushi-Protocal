@@ -2,14 +2,14 @@
 	<PropertyGroup>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>../bin/Content.Client/</OutputPath>
-		<NoWarn>0618</NoWarn>
+    <OutputType Condition="'$(FullRelease)' != 'True'">Exe</OutputType>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<Configurations>Debug;Release;Tools;DebugOpt</Configurations>
 		<Platforms>AnyCPU</Platforms>
 	</PropertyGroup>
 	<Import Project="../MSBuild/Content.props" />
 	<ItemGroup>
-		<ProjectReference Include="../Content.Client/Content.Client.csproj" />
+    <ProjectReference Include="../Content.Trauma.Client/Content.Trauma.Client.csproj" />
 		<ProjectReference Include="../Content.Itzushi.Shared/Content.Itzushi.Shared.csproj" />
 	</ItemGroup>
 
