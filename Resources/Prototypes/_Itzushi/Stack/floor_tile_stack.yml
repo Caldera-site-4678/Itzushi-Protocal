@@ -1,0 +1,29 @@
+- type: stack
+  parent: BaseTileStack
+  id: FloorTileBamboo
+  name: stack-bamboo-floor-tile
+  spawn: FloorTileItemBamboo
+
+- type: stack
+  parent: BaseTileStack
+  id: FloorTilePool
+  name: stack-pool-floor-tile
+  spawn: FloorTileItemPool
+
+- type: stack
+  parent: BaseTileStack
+  id: FloorTileSovietDecoratedConcrete
+  name: stack-soviet-decorated-concrete-tile
+  spawn: FloorTileItemSovietDecoratedConcrete
+
+- type: stack
+  parent: BaseTileStack
+  id: FloorTileToyCarpet
+  name: stack-toy-carpet
+  spawn: FloorTileItemToyCarpet
+
+- type: stack
+  parent: BaseTileStack
+  id: FloorTileUgly
+  name: stack-ugly-floor-tile
+  spawn: FloorTileItemUgly
