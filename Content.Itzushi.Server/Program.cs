@@ -2,13 +2,13 @@
 
 using Robust.Server;
 
-namespace Content.Trauma.Server;
+namespace Content.Itzushi.Server;
 
 internal static class Program
 {
     public static void Main(string[] args)
     {
-        // c# doing this randomly breaks replay saving, linux doesnt need file locking
+        // c# doing this randomly breaks replay saving, linux doesn't need file locking
         AppContext.SetSwitch("System.IO.DisableFileLocking", true);
         ContentStart.Start(args);
     }

@@ -1,4 +1,4 @@
-namespace Content.Server._Itzushi.Yokai;
+namespace Content.Itzushi.Server.Yokai;
 
 /// <summary>
 /// PhoneRingerAura Entities require a TelephoneComponent

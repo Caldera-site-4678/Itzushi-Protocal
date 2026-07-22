@@ -2,7 +2,7 @@
 
 using Robust.Client;
 
-namespace Content.Trauma.Client;
+namespace Content.Itzushi.Client;
 
 internal sealed class Program
 {

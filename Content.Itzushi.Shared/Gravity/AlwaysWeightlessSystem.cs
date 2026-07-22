@@ -1,6 +1,6 @@
 using Content.Shared.Gravity;
 
-namespace Content.Shared._Itzushi.Gravity;
+namespace Content.Itzushi.Shared.Gravity;
 
 /// <summary>
 /// forces any entity with AlwaysWeightlessComponent to be treated as weightless,

@@ -2,7 +2,7 @@ using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Weapons.Melee.Events;
 using Robust.Shared.Random;
 
-namespace Content.Server._Itzushi.ErrantSouls;
+namespace Content.Itzushi.Server.ErrantSouls;
 
 public sealed partial class ReagentOnMeleeHitSystem : EntitySystem
 {

@@ -1,8 +1,6 @@
-using System.Diagnostics;
-using System.Linq;
 using Content.Shared.Weapons.Melee.Events;
 
-namespace Content.Server._Itzushi.Yokai;
+namespace Content.Itzushi.Server.Yokai;
 
 public sealed partial class PackDamageSystem : EntitySystem
 {
