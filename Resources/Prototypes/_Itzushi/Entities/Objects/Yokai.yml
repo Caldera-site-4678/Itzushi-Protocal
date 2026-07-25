@@ -1,0 +1,62 @@
+- type: entity
+  parent: BaseHandheldInstrument #should i make it an instrument? or just a handheld item? its kinda funny to imagine it is singing.
+  id: HinnagamiYokaiIzushiDollToyRitual
+  name: Hinnagami Doll
+  description: Seems fragile, but it is said to be a powerful ritualistic item. It is said that if you pray to it, it will answer your prayers.
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Yokai/Hinnagami.rsi
+    state: icon
+  - type: Item
+    size: Small
+    storedRotation: -90
+  - type: Prayable
+    sentMessage: prayer-popup-notify-centcom-sent
+    notificationPrefix: prayer-chat-notify-centcom
+    verb: prayer-verbs-call
+    verbImage: null
+    notificationSound: # Goobstation - Admin Notifications
+      path: /Audio/_Goobstation/Misc/phone_ring.ogg
+  - type: Damageable
+    damageModifierSet: Glass
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 5
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+    - trigger:
+        !type:DamageTrigger
+        damage: 5
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: GlassBreak
+          params:
+            volume: -4
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          GraveyardDirtRitualmaterial:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: DamageOnLand
+    ignoreResistances: true
+    damage:
+      types:
+        Blunt: 5 # so fragile it smashes when thrown
+
+- type: entity
+  parent: [SolutionFood, SolutionTiny, BaseItem, Ash]
+  id: GraveyardDirtRitualmaterial
+  name: Graveyard dirt
+  description: A pile of clay and dirt from a graveyard. It is a key component in most rituals.
+  components:
+  - type: Item
+    size: Tiny
+  - type: Sprite
+    sprite: _Trauma/Objects/Materials/materials.rsi # Trauma
+    state: ash
