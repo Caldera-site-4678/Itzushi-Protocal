@@ -1,0 +1,70 @@
+#town weapons (weapons that are in the time period of Itzushi Project)
+
+#Limbo weapons (weapons that are found in limbo, both can be aquired in protocal and project)
+
+#Iris corporation weapons (weapons that are in the time period of Itzushi Protocal)
+
+#future weapons (weapons that are in the time period of Itzushi Protocal)
+
+#contraband weapons (KGB, Warsaw Pact)(itzushi project)
+
+#contraband weapons (CIA, Nato)(itzushi project)
+
+#contraband weapons (United territories of America)(itzushi protocal)
+
+#contraband weapons (Shinozaki Communist Party)(itzushi protocal)
+
+#contraband weapons (Syndicate)(itzushi protocal)
+
+#contraband weapons (Yakuza)(itzushi project)
+
+#contraband weapons (other)(itzushi project)
+
+- type: entity
+  parent: [BaseItem]
+  id: WeaponLargeRock
+  name: Large Rock
+  description: Genesis 4:8
+  components:
+  - type: WeaponClass
+    class: Bludgeon
+  - type: Sprite
+    sprite: _Itzushi/Objects/weapons/melee/LargeRock.rsi
+    state: icon
+  - type: MeleeWeapon
+    animationRotation: -45
+    wideAnimationRotation: -135
+    damage:
+      types:
+        Blunt: 15
+    attackRate: 0.5
+    bluntStaminaDamageFactor: 2.0
+    soundHit:
+      path: /Audio/_Goobstation/Weapons/Baton/woodhit.ogg
+  - type: Item
+    shape:
+    - 0,0,4,4
+    storedRotation: 45
+
+- type: entity
+  parent: [BaseItem, WeaponLargeRock]
+  id: WeaponLargeRockGibAdmin
+  name: The kitsune squashing rock(TM)
+  description: "could kill a lot of kitsube"
+  components:
+  - type: WeaponClass
+    class: Bludgeon
+  - type: Sprite
+    sprite: _Itzushi/Objects/weapons/melee/LargeRock.rsi
+    state: icon
+  - type: MeleeWeapon
+    animationRotation: -45
+    wideAnimationRotation: -135
+    damage:
+      types:
+        Blunt: 1000
+    attackRate: 2.5
+    bluntStaminaDamageFactor: 2.0
+
+
+#contraband weapons (other)(itzushi protocal)
