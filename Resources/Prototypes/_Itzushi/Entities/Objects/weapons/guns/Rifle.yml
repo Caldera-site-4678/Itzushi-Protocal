@@ -8,7 +8,111 @@
 
 #contraband weapons (KGB, Warsaw Pact)(itzushi project)
 
+- type: entity
+  name: Simonova "sks" Carbine
+  parent: [ BaseItem, BaseWeaponRifle ]
+  id: N14WeaponRifle762SKS
+  description: A semi-auto soviet carbine, perfect for those who choose their shots.
+  components:
+  - type: Clothing
+    sprite: _N14/weapons/guns/Rifle/SKS.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: Sprite
+    sprite: _N14/weapons/guns/Rifle/SKS.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+    - state: mag-0
+      map: ["enum.GunVisualLayers.Mag"]
+  - type: Gun
+    minAngle: 24
+    maxAngle: 80 #so you can't mag dump the sks
+    angleIncrease: 4
+    angleDecay: 16
+    fireRate: 6 #turns out the sks can be shoot up to 40~ rounds per minute
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: MagazineRifle
+        insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
+        priority: 2
+        whitelist:
+          tags:
+            - MagazineRifle
+      gun_chamber:
+        name: Chamber
+        startingItem: CartridgeRifle
+        priority: 1
+        whitelist:
+          tags:
+            - CartridgeRifle
+  - type: StaticPrice
+    price: 175
+
 #contraband weapons (CIA, Nato)(itzushi project)
+
+- type: entity
+  name: Cat-15
+  parent: [ BaseItem, BaseWeaponRifle ]
+  id: N14WeaponRifle556CarbineCat15
+  description: A short carbine rifle, excels in close quarters combat.
+  components:
+  - type: Item
+    sprite: _N14/weapons/guns/Rifle/Cat15.rsi
+  - type: Clothing
+    sprite: _N14/weapons/guns/Rifle/Cat15.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: Sprite
+    scale: 0.8, 0.8
+    sprite: _N14/weapons/guns/Rifle/Cat15icon.rsi
+    layers:
+      - state: base
+        map: ["enum.GunVisualLayers.Base"]
+      - state: mag-0
+        map: ["enum.GunVisualLayers.Mag"]
+  - type: Gun
+    fireRate: 15
+    minAngle: 30
+    maxAngle: 45
+    angleIncrease: 15
+    angleDecay: 20
+    selectedMode: FullAuto
+    availableModes:
+    - FullAuto
+    - SemiAuto
+  - type: GunRequiresWield
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: MagazineRifle
+        insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
+        priority: 2
+        whitelist:
+          tags:
+            - MagazineRifle
+      gun_chamber:
+        name: Chamber
+        startingItem: CartridgeRifle
+        priority: 1
+        whitelist:
+          tags:
+            - CartridgeRifle
+  - type: StaticPrice
+    price: 100
+
 
 #contraband weapons (United territories of America)(itzushi protocal)
 

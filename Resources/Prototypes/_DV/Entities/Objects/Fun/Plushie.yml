@@ -1,0 +1,13 @@
+#kill kitsune with rock
+
+- type: entity
+  parent: BasePlushie
+  id: PlushieKitsune
+  name: kitsune plushie
+  description: A stuffed toy that resembles a kitsune. The tails are poseable.
+  components:
+  - type: Sprite
+    sprite: _DV/Objects/Fun/Toys/plushies.rsi
+    state: kitsune
+
+#no i am not porting the sounds, that is another pr.
