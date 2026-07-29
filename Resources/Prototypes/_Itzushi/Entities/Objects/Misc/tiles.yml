@@ -1,0 +1,92 @@
+- type: entity
+  name: bamboo tile
+  parent: FloorTileItemBase
+  id: FloorTileItemBamboo
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    state: bamboo
+  - type: Item
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    heldPrefix: wood
+  - type: FloorTile
+    outputs:
+    - Plating
+    - FloorBamboo
+  - type: Stack
+    stackType: FloorTileBamboo
+#  - type: Construction # TODO
+#    graph: TileBamboo
+#    node: bambootile
+
+- type: entity
+  name: pool tile
+  parent: FloorTileItemBase
+  id: FloorTileItemPool
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    state: pool
+  - type: Item
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    heldPrefix: steel
+  - type: FloorTile
+    outputs:
+    - Plating
+    - FloorPool
+  - type: Stack
+    stackType: FloorTilePool
+
+- type: entity
+  parent: FloorTileItemConcrete
+  id: FloorTileItemSovietDecoratedConcrete
+  name: soviet decorated concrete tile
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    state: soviet-decorated-concrete
+  - type: Item
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    heldPrefix: generic
+  - type: FloorTile
+    outputs:
+    - Plating
+    - FloorSovietDecoratedConcrete
+  - type: Stack
+    stackType: FloorTileSovietDecoratedConcrete
+
+- type: entity
+  name: toy carpet floor
+  parent: FloorTileItemBase
+  id: FloorTileItemToyCarpet
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    state: toy-carpet
+  - type: Item
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    heldPrefix: generic
+  - type: FloorTile
+    outputs:
+    - Plating
+    - FloorToyCarpet
+  - type: Stack
+    stackType: FloorTileToyCarpet
+
+- type: entity
+  name: ugly tile
+  parent: FloorTileItemBase
+  id: FloorTileItemUgly
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    state: ugly
+  - type: Item
+    sprite: _Itzushi/Objects/Tiles/tile.rsi
+    heldPrefix: steel
+  - type: FloorTile
+    outputs:
+    - Plating
+    - FloorUgly
+  - type: Stack
+    stackType: FloorTileUgly

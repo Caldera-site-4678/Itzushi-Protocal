@@ -1,0 +1,26 @@
+{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Created by plyushsune (Discord: plyushsune), edited with permission by finket (Discord and GitHub: finket)",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "bamboo"
+        },
+        {
+            "name": "pool"
+        },
+        {
+            "name": "soviet-decorated-concrete"
+        },
+        {
+            "name": "toy-carpet"
+        },
+        {
+            "name": "ugly"
+        }
+    ]
+}

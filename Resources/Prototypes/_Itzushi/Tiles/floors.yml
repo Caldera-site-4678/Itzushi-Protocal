@@ -1,0 +1,55 @@
+- type: tile
+  parent: BaseStationTile
+  id: FloorBamboo
+  name: tiles-bamboo
+  sprite: /Textures/_Itzushi/Tiles/bamboo.png
+  footstepSounds:
+    collection: FootstepWood
+  barestepSounds:
+    collection: BarestepWood
+  itemDrop: FloorTileItemBamboo
+  tileRipResistance: 75
+
+- type: tile
+  id: FloorPool
+  parent: BaseStationTile
+  name: tiles-pool-floor
+  sprite: /Textures/_Itzushi/Tiles/pool.png
+  footstepSounds:
+    collection: FootstepTile
+  itemDrop: FloorTileItemPool
+  tileRipResistance: 50
+
+- type: tile
+  id: FloorSovietDecoratedConcrete
+  parent: FloorConcrete
+  name: tiles-soviet-decorated-concrete
+  sprite: /Textures/_Itzushi/Tiles/soviet-decorated-concrete.png
+  variants: 1
+  footstepSounds:
+    collection: FootstepTile
+  itemDrop: FloorTileItemSovietDecoratedConcrete
+  tileRipResistance: 300
+
+- type: tile
+  id: FloorToyCarpet
+  parent: BaseStationTile
+  name: tiles-toy-carpet-floor
+  sprite: /Textures/_Itzushi/Tiles/toy-carpet.png
+  footstepSounds:
+    collection: FootstepCarpet
+  barestepSounds:
+    collection: BarestepCarpet
+  friction: 1.25
+  itemDrop: FloorTileItemToyCarpet
+  tileRipResistance: 75
+
+- type: tile
+  id: FloorUgly
+  parent: BaseStationTile
+  name: tiles-ugly-floor
+  sprite: /Textures/_Itzushi/Tiles/ugly.png
+  footstepSounds:
+    collection: FootstepTile
+  itemDrop: FloorTileItemUgly
+  tileRipResistance: 50
