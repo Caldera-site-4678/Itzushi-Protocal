@@ -60,3 +60,15 @@
   - type: Sprite
     sprite: _Trauma/Objects/Materials/materials.rsi # Trauma
     state: ash
+
+
+- type: entity
+  parent: BaseItem
+  name: Katashiro page
+  description: A page with outline of a katashiro paper doll, its unfinished.
+  id: KatashiroPageRitualItzushi
+  components:
+  - type: Sprite
+    sprite: _Itzushi/Objects/Yokai/Katashiro.rsi
+  - type: Item
+    sprite: _Itzushi/Objects/Yokai/Katashiro.rsi
