@@ -1,6 +1,6 @@
 - type: entity
   save: false
-  parent: [BaseMobKitsune, BaseMobHuman]
+  parent: BaseMobKitsune #, BaseMobHuman]
   id: MobKitsune
   name: Urist McKitsune
   components:
