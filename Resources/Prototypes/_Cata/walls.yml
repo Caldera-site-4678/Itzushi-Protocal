@@ -1,0 +1,21 @@
+  - type: entity
+    parent: BaseStructureWall
+    id: WallStructureConcrete
+    name: concrete wall
+    components:
+    - type: Sprite
+      sprite: _Cata14/Walls/Concrete.rsi
+    - type: Icon
+      sprite: _Cata14/Walls/concrete.rsi
+
+  - type: entity
+    parent: BaseStructureWall
+    id: StructureWallCataRebar
+    name: rebar assembly
+    components:
+    - type: Sprite
+      sprite: _Cata14/Walls/Rebar.rsi
+    - type: Icon
+      sprite: _Cata14/Walls/Rebar.rsi
+
+#i didn't port the others as these walls don't show any sprites in the game.

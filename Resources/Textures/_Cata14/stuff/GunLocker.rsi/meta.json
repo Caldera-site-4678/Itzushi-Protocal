@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Used TG Station 13 sprites as a base, modified by avtomata (disc:core_mene)",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "rack"
+    },
+    {
+      "name": "lock"
+    },
+    {
+      "name": "filled"
+    },
+    {
+      "name": "fill-0"
+    },
+    {
+      "name": "fill-1"
+    },
+    {
+      "name": "fill-2"
+    },
+    {
+      "name": "fill-3"
+    },
+    {
+      "name": "fill-4"
+    },
+    {
+      "name": "fill-5"
+    }
+  ]
+}

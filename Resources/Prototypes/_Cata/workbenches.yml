@@ -1,0 +1,58 @@
+- type: entity
+  parent: StructureFurnitureBaseLarge
+  id: StructureFurnitureWorkbenchMetal
+  name: metal workbench
+  description: A large metal workbench, for tinkering or crafting.
+  components:
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.45,-0.45,0.45,0.45"
+        density: 55
+        mask:
+        - TableMask
+        layer:
+        - TableLayer
+        - BulletImpassable
+  - type: Climbable
+  - type: Sprite
+    scale: 0.9,0.7
+    noRot: true
+    sprite: _Cata14/stuff/workbench.rsi
+    state: icon
+  # Construction has to be before PlaceableSurface or you'll place things onto the entity instead of deconstructing it.
+  - type: Construction
+    graph: bed
+    node: bed
+  # So that you can put bedsheets on beds again. Would be cool to have a tag
+  # for this so that only bedsheets can be placed.
+  - type: PlaceableSurface
+    placeCentered: true
+  - type: Damageable
+    damageContainer: Inorganic
+    damageModifierSet: Metallic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 75
+      behaviors:
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectMineralPlateSteelStack1:
+            min: 2
+            max: 8
+          MaterialObjectMineralPipeSteelStack1:
+            min: 1
+            max: 4
+  - type: Transform
+    anchored: true
+    noRot: true
+  - type: Anchorable
+  - type: Pullable

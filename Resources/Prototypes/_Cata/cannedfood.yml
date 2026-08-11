@@ -1,0 +1,381 @@
+?
+# #MARK: MixedVeggies
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedMixedVegetables
+#   name: canned mixed vegetables
+#   description: "Carrots, peas, corn, and green beans. Barely recognizable individually, but nutritious together."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_mixed_veggies.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - bland
+#     - vegetal
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 8
+#         - ReagentId: Vitamin
+#           Quantity: 6
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedMixedVegTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedMixedVegTrash
+#   name: canned mixed vegetables
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_mixed_veggies.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: Ravioli
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedRavioli
+#   name: canned ravioli
+#   description: "Pasta pockets in tomato sauce, you never heard of a rav-o-li but it peaks your interest."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_ravioli.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - savory
+#     - tomato
+#     - cheap
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 12
+#         - ReagentId: Protein
+#           Quantity: 2
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedRavioliTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedRavioliTrash
+#   name: canned ravioli
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_ravioli.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: CondensedMilk
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedCondensedMilk
+#   name: canned condensed milk
+#   description: "Thick, sweet condensed milk. Great for cooking, the soviets like eating this."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_condensed_milk.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - sweet
+#     - creamy
+#     - milk
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 4
+#         - ReagentId: Sugar
+#           Quantity: 8
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedCondensedMilkTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedCondensedMilkTrash
+#   name: canned condensed milk
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_condensed_milk.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: CranberrySauce
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedCranberrySauce
+#   name: canned cranberry sauce
+#   description: "Jellied cranberry sauce. what the fuck is a cranberry?"
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_cranberry_sauce.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - sweet
+#     - sour
+#     - berry
+#   - type: Tag
+#     tags:
+#     - Fruit
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 4
+#         - ReagentId: Vitamin
+#           Quantity: 2
+#         - ReagentId: Sugar
+#           Quantity: 6
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedCranberryTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedCranberryTrash
+#   name: canned cranberry sauce
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_cranberry_sauce.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: PickledVeggies
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedPickledVegetables
+#   name: pickled vegetables
+#   description: "A sealed jar of assorted pickled vegetables. Vinegar-preserved and crunchy."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_pickled_veggies.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - sour
+#     - salty
+#     - vinegar
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 6
+#         - ReagentId: Vitamin
+#           Quantity: 4
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedPickledVegTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedPickledVegTrash
+#   name: pickled vegetables
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_pickled_veggies.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: StrawberryJam
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedStrawberryJam
+#   name: strawberry preserves
+#   description: "A small jar of strawberry preserves."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_strawberry_jam.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - sweet
+#     - berry
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 4
+#         - ReagentId: Sugar
+#           Quantity: 8
+#         - ReagentId: Vitamin
+#           Quantity: 1
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedStrawberryJamTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedStrawberryJamTrash
+#   name: strawberry preserves
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_strawberry_jam.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: DogFood
+# - type: entity
+#   parent: FoodTinBase
+#   id: ConsumableFoodCannedDogFood
+#   name: canned dog food
+#   description: "It says 'for pets only' on the label. Desperate times call for desperate meals."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_dog_food.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: FlavorProfile
+#     flavors:
+#     - meaty
+#     - terrible
+#     - cheap
+#   - type: SolutionContainerManager
+#     solutions:
+#       food:
+#         maxVol: 20
+#         reagents:
+#         - ReagentId: Nutriment
+#           Quantity: 6
+#         - ReagentId: Protein
+#           Quantity: 4
+#         - ReagentId: GastroToxin
+#           Quantity: 2
+#   - type: Food
+#     trash:
+#     - ConsumableFoodCannedDogFoodTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodCannedDogFoodTrash
+#   name: canned dog food
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_dog_food.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+
+# #MARK: MysteryCan
+# - type: entity
+#   parent: BaseItem
+#   id: ConsumableFoodJunkMysteryCan
+#   name: unlabelled can
+#   description: "do you even want to test this?."
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_unlabelled.rsi
+#     scale: 0.5,0.5
+#     state: icon
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1
+#   - type: SpawnItemsOnUse
+#     items:
+#     - id: ConsumableFoodCannedChickenSoup
+#       prob: 0.3
+#       orGroup: Contents
+#     - id: ConsumableFoodCannedBeans
+#       prob: 0.3
+#       orGroup: Contents
+#     - id: ConsumableFoodCannedSpam
+#       prob: 0.3
+#       orGroup: Contents
+#     - id: ConsumableFoodCannedCorn
+#       prob: 0.3
+#       orGroup: Contents
+#     - id: ConsumableFoodCannedDogFood
+#       prob: 0.1
+#       orGroup: Contents
+#     sound:
+#       path: /Audio/Items/can_open3.ogg
+#   - type: Food
+#     trash:
+#     - ConsumableFoodJunkMysteryCanTrash
+
+# - type: entity
+#   parent: FoodTinBaseTrash
+#   id: ConsumableFoodJunkMysteryCanTrash
+#   name: unlabelled can
+#   suffix: Trash
+#   components:
+#   - type: Sprite
+#     sprite: _Cataclysm14/Objects/Consumable/Food/CannedFood/can_unlabelled.rsi
+#     scale: 0.5,0.5
+#   - type: Item
+#     storedScale: 2.5
+#     shape:
+#     - 0,0,1,1

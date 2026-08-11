@@ -1,0 +1,298 @@
+#MARK: Shelves
+- type: entity
+  id: StructureFurnitureShelfMetal
+  parent: StructureFurnitureBaseLarge
+  name: metal shelves
+  description: Metal shelves, can store things inside itself.
+  components:
+  - type: Appearance
+  - type: Sprite
+    sprite: _Cata14/stuff/shelfmetal.rsi
+    noRot: true
+    layers:
+    - state: icon
+    - map: ["enum.StorageFillLayers.Fill"]
+  - type: StorageFillVisualizer
+    maxFillLevels: 6
+    fillBaseName: fill
+  - type: Damageable
+    damageModifierSet: Metallic
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectMineralPlateSteelStack1:
+            min: 3
+            max: 6
+          MaterialObjectMineralPipeSteelStack1:
+            min: 1
+            max: 4
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Storage
+    grid:
+    - 0,0,13,11
+    maxItemSize: Huge
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Tag
+    tags:
+    - Wooden
+  - type: Anchorable
+  - type: Rotatable
+  # - type: Construction
+  #   graph: Dresser
+  #   node: dresser
+  - type: Transform
+    anchored: true
+    noRot: true
+
+#MARK: Storage Shelves
+- type: entity
+  id: StructureFurnitureShelfMetalStorage
+  parent: StructureFurnitureBaseLarge
+  name: metal storage shelves
+  description: Metal shelves, can store things inside itself.
+  components:
+  - type: Appearance
+  - type: Sprite
+    sprite: _Cata14/stuff/shelfmetalstorage.rsi
+    noRot: true
+    layers:
+    - state: icon
+    - map: ["enum.StorageFillLayers.Fill"]
+  - type: StorageFillVisualizer
+    maxFillLevels: 6
+    fillBaseName: fill
+  - type: Damageable
+    damageModifierSet: Metallic
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectMineralPlateSteelStack1:
+            min: 4
+            max: 8
+          MaterialObjectMineralPipeSteelStack1:
+            min: 2
+            max: 4
+  - type: Storage
+    grid:
+    - 0,0,15,15
+    maxItemSize: Huge
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Tag
+    tags:
+    - Wooden
+  - type: Anchorable
+  - type: Rotatable
+  # - type: Construction
+  #   graph: Dresser
+  #   node: dresser
+  - type: Transform
+    anchored: true
+    noRot: true
+
+#MARK: Store Shelves
+- type: entity
+  id: StructureFurnitureShelfStore
+  parent: StructureFurnitureBaseLarge
+  name: store shelves
+  description: Store shelves, can store things inside itself.
+  components:
+  - type: Sprite
+    sprite: _Cata14/stuff/storeshelf.rsi
+    state: icon
+  - type: Damageable
+    damageModifierSet: Metallic
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectMineralPlateSteelStack1:
+            min: 3
+            max: 6
+          MaterialObjectMineralPipeSteelStack1:
+            min: 1
+            max: 4
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Storage
+    grid:
+    - 0,0,13,7
+    maxItemSize: Huge
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Tag
+    tags:
+    - Wooden
+  - type: Anchorable
+  - type: Rotatable
+  # - type: Construction
+  #   graph: Dresser
+  #   node: dresser
+  - type: Transform
+    anchored: true
+
+#sprite doesn't show in game.
+
+
+#MARK: wood shelves
+
+
+
+
+
+
+#MARK: Shelves
+- type: entity
+  id: StructureFurnitureShelfWood
+  parent: StructureFurnitureBaseLarge
+  name: wooden shelves
+  description: Wooden shelves, can store things inside itself.
+  components:
+  - type: Appearance
+  - type: Sprite
+    sprite: _Cata14/stuff/woodshelf.rsi
+    noRot: true
+    layers:
+    - state: icon
+    - map: ["enum.StorageFillLayers.Fill"]
+  - type: StorageFillVisualizer
+    maxFillLevels: 6
+    fillBaseName: fill
+  - type: Damageable
+    damageModifierSet: Wood
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectWoodPlankStack1:
+            min: 2
+            max: 8
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Storage
+    grid:
+    - 0,0,13,11
+    maxItemSize: Huge
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Tag
+    tags:
+    - Wooden
+  - type: Anchorable
+  - type: Rotatable
+  # - type: Construction
+  #   graph: Dresser
+  #   node: dresser
+  - type: Transform
+    anchored: true
+    noRot: true
+
+#MARK: Storage Shelves
+- type: entity
+  id: StructureFurnitureShelfWoodStorage
+  parent: StructureFurnitureBaseLarge
+  name: wooden storage shelves
+  description: Wooden shelves, can store things inside itself.
+  components:
+  - type: Appearance
+  - type: Sprite
+    sprite: _Cata14/stuff/woodshelfstorage.rsi
+    noRot: true
+    layers:
+    - state: icon
+    - map: ["enum.StorageFillLayers.Fill"]
+  - type: StorageFillVisualizer
+    maxFillLevels: 6
+    fillBaseName: fill
+  - type: Damageable
+    damageModifierSet: Wood
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectWoodPlankStack1:
+            min: 3
+            max: 10
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Storage
+    grid:
+    - 0,0,15,15
+    maxItemSize: Huge
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Tag
+    tags:
+    - Wooden
+  - type: Anchorable
+  - type: Rotatable
+  # - type: Construction
+  #   graph: Dresser
+  #   node: dresser
+  - type: Transform
+    anchored: true
+    noRot: true

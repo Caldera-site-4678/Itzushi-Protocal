@@ -1,0 +1,92 @@
+#MARK: BaseTall
+- type: entity
+  id: StructureFurnitureBaseLarge
+  parent: BaseStructure
+  abstract: true
+  placement:
+    mode: AlignTileAny
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.35,-0.2,0.35,0.4"
+        density: 50
+        mask:
+        - LargeMobMask
+        layer:
+        - WallLayer
+
+#MARK: BaseTall
+- type: entity
+  id: StructureFurnitureBaseTall
+  parent: BaseStructure
+  abstract: true
+  placement:
+    mode: AlignTileAny
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.35,-0.2,0.35,0.4"
+        density: 50
+        mask:
+        - LargeMobMask
+        layer:
+        - WallLayer
+  - type: Occluder
+
+#Starts unanchored, cannot be rotated while anchored
+- type: entity
+  name: chair
+  id: BaseFurnitureChairUnanchoredUnrotate
+  parent: SeatBase
+  abstract: true
+  components:
+  - type: Anchorable
+  - type: Rotatable
+
+#Start anchored, cannot be rotated while anchored
+- type: entity
+  name: chair
+  id: BaseFurnitureChairAnchoredUnrotate
+  abstract: true
+  parent: BaseFurnitureChairUnanchoredUnrotate
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Physics
+    bodyType: Static
+  - type: Transform
+    anchored: true
+
+#Starts unanchored, can be rotated while anchored
+- type: entity
+  name: chair
+  id: BaseFurnitureChairUnanchoredRotate
+  parent: BaseFurnitureChairUnanchoredUnrotate
+  abstract: true
+  components:
+  - type: Rotatable
+    rotateWhileAnchored: true
+
+#Starts anchored, can be rotated while anchored
+- type: entity
+  name: stool
+  id: BaseFurnitureChairAnchoredRotate
+  parent: BaseFurnitureChairUnanchoredRotate
+  abstract: true
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Physics
+    bodyType: Static
+  - type: Transform
+    anchored: true

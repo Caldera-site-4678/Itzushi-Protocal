@@ -1,0 +1,106 @@
+#MARK: Metal Gun Rack
+- type: entity
+  parent: StructureFurnitureBaseLarge
+  id: StructureFurnitureGunRackMetal
+  name: metal gun rack
+  description: Metal shelves, can store things inside itself.
+  components:
+  - type: Appearance
+  - type: Lock
+    locked: false
+  - type: LockVisuals
+  - type: AccessReader
+  - type: Sprite
+    sprite: _Cata14/stuff/Gunlocker.rsi
+    state: icon
+    noRot: true
+    layers:
+    - state: rack
+    - map: ["enum.StorageFillLayers.Fill"]
+    - state: lock
+      map: ["enum.LockVisualLayers.Lock"]
+  - type: StorageFillVisualizer
+    maxFillLevels: 5
+    fillBaseName: fill
+  - type: Damageable
+    damageModifierSet: Metallic
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          MaterialObjectMineralPlateSteelStack1:
+            min: 2
+            max: 6
+          MaterialObjectMineralPipeSteelStack1:
+            min: 1
+            max: 3
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Storage
+    grid:
+    - 0,0,13,7
+    maxItemSize: Huge
+    whitelist:
+      components:
+        - Gun
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Tag
+    tags:
+    - Wooden
+  - type: Anchorable
+  - type: Rotatable
+  # - type: Construction
+  #   graph: Dresser
+  #   node: dresser
+  - type: Transform
+    anchored: true
+    noRot: true
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.35,-0.4,0.35,0.4"
+        density: 50
+        mask:
+        - LargeMobMask
+        layer:
+        - WallLayer
+
+#MARK: Locked
+- type: entity
+  parent: StructureFurnitureGunRackMetal
+  id: StructureFurnitureGunRackMetalLocked
+  suffix: Locked
+  components:
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 50
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          StructureFurnitureGunRackMetal:
+            min: 1
+            max: 1
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: AccessReader
+    access:
+    - - CentralCommand
+  - type: Lock
+    locked: true
