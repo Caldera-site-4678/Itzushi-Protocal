@@ -437,7 +437,7 @@
     offset: 0, 0.1
 
 - type: entity
-  parent: ComputerCargoShuttle
+  parent: ComputerShuttleCargo
   id: ComputerCargoShuttleDesktop
   name: cargo shuttle computer
   components:
