@@ -57,17 +57,6 @@
 
 - type: entity
   parent: BaseSubdermalImplant
-  id: KravMagaImplant
-  name: krav maga implant
-  description: This implant allows the user to perform various Krav Maga moves.
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: ComponentsImplant
-    added:
-    # - type: KravMaga
-
-- type: entity
-  parent: BaseSubdermalImplant
   id: AutoinjectorImplant
   name: autoinjector implant
   description: This implant allows the user to inject themselves with a chemical on use. Ephedrine by default.
@@ -88,18 +77,21 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: NutrimentPumpImplant
+  - type: SubdermalImplant
+    whitelist:
+      components:
+      - HumanoidProfile
 
 - type: entity
   parent: BaseSubdermalImplant
   id: SpaceProofImplant
   name: space proofing implant
-  description: This implant allows the user to survive in space and without air.
+  description: This implant allows the user to survive without air or warmth.
   categories: [ HideSpawnMenu ]
   components:
   - type: ComponentsImplant
     added:
     - type: BreathingImmunity
-    - type: PressureImmunity
     - type: SpecialLowTempImmunity
 
 - type: entity
@@ -118,31 +110,13 @@
   description: This implant allows the user to access Binary and communicate with silicons (use +b).
   categories: [ HideSpawnMenu ]
   components:
-  - type: ImplantGrantCollectiveMind
-    collectiveMind: Binary
-
-- type: entity
-  parent: BaseSubdermalImplant
-  id: ClumsyImplant
-  name: clumsy implant
-  description: This implant makes the user clumsy, allowing them to drive a certain vehicle.
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: ComponentsImplant
+  - type: ImplantEffects
     added:
-    - type: Clumsy
-
-- type: entity
-  parent: BaseSubdermalImplant
-  id: ShadowmindImplant
-  name: shadowmind implant
-  description: This implant allows the user to access Shadowmind channel (use +q).
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: SubdermalImplant
-    permanent: true
-  - type: ImplantGrantCollectiveMind
-    collectiveMind: Shadowmind
+    - !type:AddCollectiveMind
+      channel: Binary
+    removed:
+    - !type:RemoveCollectiveMind
+      channel: Binary
 
 # Admeme
 
@@ -197,34 +171,6 @@
     implantAction: ActionStopTimeFreeman
 
 # Antag Planet
-
-- type: entity
-  parent: BaseSubdermalImplant
-  id: AntagImplantChangeling
-  name: changeling implant
-  description: This implant allows the user to shift their bodies like a changeling
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: ComponentsImplant
-    added:
-    - type: Changeling
-    - type: ChangelingIdentity
-    - type: Store
-    # this shit is broken still CBF to fix it but you need to make it find or add a ling rule, then MakeChangeling it
-    removed:
-    - type: Hunger
-    - type: Thirst
-
-- type: entity
-  parent: BaseSubdermalImplant
-  id: AntagImplantSpaceNinja
-  name: ninja implant
-  description: This implant allows the user to gain the skills of a space ninja.
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: ComponentsImplant
-    added:
-    - type: SpaceNinja
 
 - type: entity
   parent: BaseSubdermalImplant

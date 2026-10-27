@@ -102,6 +102,7 @@
           collection: MetalBreak
   - type: Anchorable
     delay: 10
+  - type: FultonBlacklist # nuclear warhead + annoying
   - type: AtmosDevice
   - type: AtmosMonitoringConsoleDevice # TODO: this doesn't work?
     navMapBlip: Thermoregulator
@@ -159,10 +160,18 @@
   - type: Lock
     unlockOnClick: false
   - type: WarpPoint
-    location: Nuclear Reactor
+    location: location-nuclear-reactor
     blacklist:
       tags:
       - GhostOnlyWarp
+
+- type: entity
+  parent: NuclearReactorCrew
+  id: NuclearReactorCrewRunning
+  suffix: Running
+  components:
+  - type: NuclearReactor
+    controlRodInsertion: 0
 
 - type: entity
   parent: NuclearReactorCrew
@@ -432,13 +441,13 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: Markers/teg_arrow.rsi
+    sprite: Markers/directional_arrow_indicator.rsi
     color: "#FFFFFFBB"
     layers:
-    - state: arrow
+    - state: blue_arrow
       rotation: 90
       offset: 3, 1
-    - state: arrow
+    - state: blue_arrow
       rotation: 90
       offset: -3, -1
   - type: TimedDespawn
@@ -454,10 +463,10 @@
   components:
   - type: Sprite
     layers:
-    - state: arrow
+    - state: blue_arrow
       rotation: 0
       offset: -1, 2
-    - state: arrow
+    - state: blue_arrow
       rotation: 180
       offset: 1, 2
 

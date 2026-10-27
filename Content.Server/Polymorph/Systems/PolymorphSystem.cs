@@ -1,5 +1,4 @@
 // <Trauma>
-using Content.Shared.Actions.Components;
 using Content.Shared.Inventory;
 using Content.Shared.NameModifier.Components;
 using Content.Shared.Polymorph.Systems;
@@ -8,10 +7,8 @@ using Content.Trauma.Common.Polymorph;
 using Content.Trauma.Common.Wizard;
 using Robust.Shared.Random;
 using Robust.Shared.Serialization.Manager;
-using System.Linq;
 // </Trauma>
 using Content.Server.Actions;
-using Content.Server.Humanoid;
 using Content.Server.Inventory;
 using Content.Server.Polymorph.Components;
 using Content.Shared.Body;
@@ -25,9 +22,9 @@ using Content.Shared.IdentityManagement;
 using Content.Shared.Mind;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
-using Content.Shared.Nutrition;
 using Content.Shared.Polymorph;
 using Content.Shared.Popups;
+using Content.Shared.Tools.Systems;
 using Robust.Server.Audio;
 using Robust.Server.Containers;
 using Robust.Server.GameObjects;
@@ -42,16 +39,14 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
     // <Trauma>
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private ISerializationManager _serialization = default!;
-    [Dependency] private BodySystem _body = default!;
     // </Trauma>
     [Dependency] private SharedMapSystem _map = default!;
-    [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private ActionsSystem _actions = default!;
     [Dependency] private AudioSystem _audio = default!;
     [Dependency] private SharedBuckleSystem _buckle = default!;
     [Dependency] private ContainerSystem _container = default!;
-    [Dependency] private DamageableSystem _damageable = default!;
+    // [Dependency] private DamageableSystem _damageable = default!; // Trauma - no longer used
     [Dependency] private MobStateSystem _mobState = default!;
     [Dependency] private MobThresholdSystem _mobThreshold = default!;
     [Dependency] private ServerInventorySystem _inventory = default!;
@@ -62,7 +57,8 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
     [Dependency] private SharedMindSystem _mindSystem = default!;
     [Dependency] private MetaDataSystem _metaData = default!;
 
-    private const string RevertPolymorphId = "ActionRevertPolymorph";
+    private static readonly EntProtoId RevertPolymorphId = "ActionRevertPolymorph";
+    private static readonly EntProtoId RevertPolymorphConfirmId = "ActionRevertPolymorphConfirm";
 
     public override void Initialize()
     {
@@ -72,7 +68,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         SubscribeLocalEvent<PolymorphableComponent, PolymorphActionEvent>(OnPolymorphActionEvent);
         SubscribeLocalEvent<PolymorphedEntityComponent, RevertPolymorphActionEvent>(OnRevertPolymorphActionEvent);
 
-        SubscribeLocalEvent<PolymorphedEntityComponent, BeforeFullySlicedEvent>(OnBeforeFullySliced);
+        SubscribeLocalEvent<PolymorphedEntityComponent, BeforeToolRefinedEvent>(OnBeforeToolRefined);
         SubscribeLocalEvent<PolymorphedEntityComponent, DestructionEventArgs>(OnDestruction);
         SubscribeLocalEvent<PolymorphedEntityComponent, EntityTerminatingEvent>(OnPolymorphedTerminating);
 
@@ -122,18 +118,22 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         if (component.Configuration.Forced)
             return;
 
-        if (_actions.AddAction(uid, ref component.Action, out var action, RevertPolymorphId))
+        if (!_actions.AddAction(
+            uid,
+            ref component.Action,
+            out var action,
+            component.Configuration.RevertConfirmationPopup ? RevertPolymorphConfirmId : RevertPolymorphId))
         {
-            _actions.SetEntityIcon((component.Action.Value, action), component.Parent);
-            _actions.SetUseDelay(component.Action.Value, TimeSpan.FromSeconds(component.Configuration.Delay));
-            if (component.Configuration.SkipRevertConfirmation) // Goobstation
-                RemComp<ConfirmableActionComponent>(component.Action.Value);
+            return;
         }
+
+        _actions.SetEntityIcon((component.Action.Value, action), component.Parent);
+        _actions.SetUseDelay(component.Action.Value, TimeSpan.FromSeconds(component.Configuration.Delay));
     }
 
     private void OnPolymorphActionEvent(Entity<PolymorphableComponent> ent, ref PolymorphActionEvent args)
     {
-        if (!_proto.Resolve(args.ProtoId, out var prototype) || args.Handled)
+        if (!ProtoMan.Resolve(args.ProtoId, out var prototype) || args.Handled)
             return;
 
         PolymorphEntity(ent, prototype.Configuration);
@@ -147,12 +147,12 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         Revert((ent, ent));
     }
 
-    private void OnBeforeFullySliced(Entity<PolymorphedEntityComponent> ent, ref BeforeFullySlicedEvent args)
+    private void OnBeforeToolRefined(Entity<PolymorphedEntityComponent> ent, ref BeforeToolRefinedEvent args)
     {
         if (ent.Comp.Reverted || !ent.Comp.Configuration.RevertOnEat)
             return;
 
-        args.Cancel();
+        args.Cancelled = true;
         Revert((ent, ent));
     }
 
@@ -188,7 +188,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
     /// <param name="protoId">The id of the polymorph prototype</param>
     public override EntityUid? PolymorphEntity(EntityUid uid, ProtoId<PolymorphPrototype> protoId) // Trauma - override virtual method
     {
-        var config = _proto.Index(protoId).Configuration;
+        var config = ProtoMan.Index(protoId).Configuration;
         return PolymorphEntity(uid, config);
     }
 
@@ -226,17 +226,17 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         var proto = configuration.Entity;
         if (proto == null)
         {
-            if (!_proto.TryIndex(configuration.Entities, out var entities) || entities.Weights.Count == 0)
+            if (!ProtoMan.Resolve(configuration.Entities, out var entities) || entities.Weights.Count == 0)
             {
-                if (!_proto.TryIndex(configuration.Groups, out var groups) || groups.Weights.Count == 0)
+                if (!ProtoMan.Resolve(configuration.Groups, out var groups) || groups.Weights.Count == 0)
                     return null;
 
                 var weightedEntityRandom = groups.Pick(_random);
-                if (!_proto.TryIndex(weightedEntityRandom, out entities) || entities.Weights.Count == 0)
+                if (!ProtoMan.Resolve(weightedEntityRandom, out entities) || entities.Weights.Count == 0)
                     return null;
             }
 
-            proto = entities.Pick(_random);
+            proto = entities.Pick(_random).Id;
         }
         var child = Spawn(proto, _transform.GetMapCoordinates(uid, targetTransformComp), rotation: _transform.GetWorldRotation(uid));
 
@@ -263,30 +263,19 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
             _container.Remove(uid, cont);
             _container.Insert(child, cont);
         }
-        // </Trauma>
 
+        if (configuration.TransferDamage)
+            _mobThreshold.TransferDamage(uid, child);
+        /*
         //Transfers all damage from the original to the new one
         if (configuration.TransferDamage &&
-            TryComp<DamageableComponent>(child, out var damageChild) &&
-            _mobThreshold.GetScaledDamage(uid, child, out var damage, out var organDamages) &&
+            TryComp<DamageableComponent>(child, out var damageParent) &&
+            _mobThreshold.GetScaledDamage(uid, child, out var damage) &&
             damage != null)
         {
-            // <Trauma> - update new bodys limb damage with old one
-            if (TryComp<BodyComponent>(child, out var childBody))
-            {
-                var organs = _body.GetOrgans((child, childBody));
-                var count = organs.Count();
-                foreach (var organ in organs)
-                {
-                    if (organ.Comp.Category is not {} category || organDamages == null || !organDamages.TryGetValue(category, out var organDamage))
-                        organDamage = damage / count;
-                    _damageable.SetDamage(organ.Owner, organDamage);
-                }
-
-            }
-            // </Trauma>
-            _damageable.SetDamage((child, damageChild), damage);
+            _damageable.SetDamage((child, damageParent), damage);
         }
+        </Trauma> */
 
         // DeltaV - Drop MindContainer entities on polymorph
         var beforePolymorphedEv = new BeforePolymorphedEvent();
@@ -367,7 +356,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
 
                 var type = registration.Type;
 
-                if (!EntityManager.TryGetComponent(uid, type, out var component))
+                if (!TryComp(uid, type, out var component))
                     continue;
 
                 var newComp = Factory.GetComponent(type);
@@ -459,27 +448,18 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
 
         component.Reverted = true;
 
+        // <Trauma>
+        if (component.Configuration.TransferDamage)
+            _mobThreshold.TransferDamage(uid, parent);
+        /*
         if (component.Configuration.TransferDamage &&
             TryComp<DamageableComponent>(parent, out var damageParent) &&
-            _mobThreshold.GetScaledDamage(uid, parent, out var damage, out var organDamages) &&
+            _mobThreshold.GetScaledDamage(uid, parent, out var damage) &&
             damage != null)
         {
-            // <Trauma> - update old bodys limb damage with reverted one
-            if (TryComp<BodyComponent>(parent, out var parentBody))
-            {
-                var organs = _body.GetOrgans((parent, parentBody));
-                var count = organs.Count();
-                foreach (var organ in organs)
-                {
-                    if (organ.Comp.Category is not {} category || organDamages == null || !organDamages.TryGetValue(category, out var organDamage))
-                        organDamage = damage / count;
-                    _damageable.SetDamage(organ.Owner, organDamage);
-                }
-
-            }
-            // </Trauma>
             _damageable.SetDamage((parent, damageParent), damage);
         }
+        </Trauma> */
 
         if (component.Configuration.Inventory == PolymorphInventoryChange.Transfer)
         {
@@ -490,7 +470,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
                 _hands.TryPickupAnyHand(parent, held, checkActionBlocker: false);
             }
         }
-        else if (component.Configuration.Inventory == PolymorphInventoryChange.Drop)
+        else
         {
             if (_inventory.TryGetContainerSlotEnumerator(uid, out var enumerator))
             {
@@ -507,7 +487,8 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         }
 
         // <Trauma>
-        EnsureComp<MindSwappingComponent>(uid);
+        if (!TerminatingOrDeleted(uid))
+            EnsureComp<MindSwappingComponent>(uid);
         // </Trauma>
 
         if (_mindSystem.TryGetMind(uid, out var mindId, out var mind))
@@ -559,19 +540,25 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         if (target.Comp.PolymorphActions.ContainsKey(id))
             return;
 
-        if (!_proto.Resolve(id, out var polyProto))
+        if (!ProtoMan.Resolve(id, out var polyProto))
             return;
 
-        // Goob edit start
-        if (polyProto.Configuration.Entity == null)
+        // <Trauma> - entity can be null
+        if (polyProto.Configuration.Entity is not { } protoId)
             return;
 
-        var entProto = _proto.Index(polyProto.Configuration.Entity.Value);
-        // Goob edit end
+        var entProto = ProtoMan.Index(protoId);
+        // </Trauma>
 
         EntityUid? actionId = default!;
-        if (!_actions.AddAction(target, ref actionId, RevertPolymorphId, target))
+        if (!_actions.AddAction(
+            target,
+            ref actionId,
+            polyProto.Configuration.RevertConfirmationPopup ? RevertPolymorphConfirmId : RevertPolymorphId,
+            target))
+        {
             return;
+        }
 
         target.Comp.PolymorphActions.Add(id, actionId.Value);
 
@@ -579,7 +566,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         _metaData.SetEntityName(actionId.Value, Loc.GetString("polymorph-self-action-name", ("target", entProto.Name)), metaDataCache);
         _metaData.SetEntityDescription(actionId.Value, Loc.GetString("polymorph-self-action-description", ("target", entProto.Name)), metaDataCache);
 
-        if (_actions.GetAction(actionId) is not {} action)
+        if (_actions.GetAction(actionId) is not { } action)
             return;
 
         _actions.SetIcon((action, action.Comp), new SpriteSpecifier.EntityPrototype(polyProto.Configuration.Entity));
@@ -588,7 +575,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
 
     public void RemovePolymorphAction(ProtoId<PolymorphPrototype> id, Entity<PolymorphableComponent> target)
     {
-        if (target.Comp.PolymorphActions is not {} actions)
+        if (target.Comp.PolymorphActions is not { } actions)
             return;
 
         if (actions.TryGetValue(id, out var action))
@@ -616,7 +603,7 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         if (old == @new)
             return null;
 
-        if (!EntityManager.TryGetComponent(old, compType, out var comp))
+        if (!TryComp(old, compType, out var comp))
             return null;
 
         if (transfer)
@@ -632,5 +619,4 @@ public sealed partial class PolymorphSystem : SharedPolymorphSystem // Trauma - 
         AddComp(@new, copy, true);
         return copy;
     }
-    // goob edit end
 }

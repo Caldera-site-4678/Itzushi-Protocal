@@ -4,9 +4,13 @@
 
 - type: entity
   abstract: true
-  parent: [SolutionFood, SolutionSmall, BaseItem, BaseStash]
+  parent: [SolutionFood, SolutionSmall, BaseItem]
   id: BasePlushie
   components:
+  # <Trauma>
+  - type: CosmicTransmutable
+    transmuteTo: PlushieCosmicCult
+  # </Trauma>
   - type: EmitSoundOnUse
     sound: &BasePlushieSound
       collection: ToySqueak
@@ -48,11 +52,41 @@
     tags:
     - Payload
     - ClothMade
-  - type: CosmicTransmutable # Trauma
-    transmuteTo: PlushieCosmicCult
 
 - type: entity
-  parent: BasePlushie
+  abstract: true
+  parent: [BasePlushie, BaseStashPlushie]
+  id: BasePlushieGinormous
+  components:
+  - type: Item
+    size: Ginormous
+
+- type: entity
+  abstract: true
+  parent: [BasePlushie, BaseStashPlushie]
+  id: BasePlushieNormal
+  components:
+  - type: Item
+    size: Normal
+
+- type: entity
+  abstract: true
+  parent: [BasePlushie, BaseStashPlushie]
+  id: BasePlushieSmall
+  components:
+  - type: Item
+    size: Small
+
+- type: entity
+  abstract: true
+  parent: BasePlushie # too smoll to fit secret stash
+  id: BasePlushieTiny
+  components:
+  - type: Item
+    size: Tiny
+
+- type: entity
+  parent: BasePlushieGinormous
   id: PlushieThrongler
   name: throngler plushie
   description: A stuffed toy to remind cargo techs of what they can no longer have.
@@ -64,14 +98,17 @@
     wideAnimationRotation: -135
     attackRate: 10
   - type: Item
-    size: Ginormous
+    shape:
+    - 0,0,3,3
+    - 1,4,2,6
+    storedRotation: -45
     sprite: Objects/Weapons/Melee/Throngler-in-hand.rsi
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: ThronglerPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: ThronglerPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieGhost
   name: ghost soft toy
   description: The start of your personal GHOST GANG!
@@ -80,12 +117,11 @@
     sprite: Mobs/Ghosts/ghost_human.rsi
     state: icon
     noRot: true
-  - type: Item
   - type: Physics
-    angularDamping: 0.02
-    linearDamping: 0.02
     fixedRotation: true
     bodyType: Dynamic
+  - type: MovementIgnoreGravity
+    weightless: true
   - type: Fixtures
     fixtures:
       fix1:
@@ -103,9 +139,9 @@
     accumulatorRatio: 0.5
     maxSpeed: 1
     minSpeed: 0.25
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: GhostPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: GhostPlushie
   - type: Tag
     tags:
     - ForceableFollow
@@ -130,12 +166,12 @@
   - type: Construction
     graph: PlushieGhostRevenant
     node: plushie
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: RevenantPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: RevenantPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieNormal
   id: PlushieBee
   name: bee plushie
   description: A cute toy that resembles an even cuter programmer. You'd have to be a monster to grind this up.
@@ -144,7 +180,6 @@
     sprite: Objects/Fun/Plushies/bee.rsi
     state: icon
   - type: Item
-    size: Normal
     sprite: Objects/Fun/Plushies/bee.rsi
   - type: Extractable
     grindableSolutionName: food
@@ -160,12 +195,12 @@
     sprite: Objects/Fun/Plushies/bee.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: BeePlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: BeePlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieHampter
   name: hampter plushie
   description: A cute stuffed toy that resembles a hamster. Its face looks squished.
@@ -197,9 +232,9 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.04"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: HamptrPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: HamptrPlushie
 
 - type: entity
   parent: PlushieBee
@@ -227,7 +262,7 @@
         shader: unshaded
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieNuke
   name: nukie plushie
   description: A stuffed toy that resembles a syndicate nuclear operative. The tag claims operatives to be purely fictitious.
@@ -244,12 +279,12 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.03"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: NukiePlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: NukiePlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieRouny
   name: rouny plushie
   description: Rouny.
@@ -257,7 +292,6 @@
   - type: Sprite
     sprite: Objects/Fun/Plushies/rouny.rsi
     state: icon
-  - type: Rotatable
   - type: Clothing
     quickEquip: false
     sprite: Objects/Fun/Plushies/rouny.rsi
@@ -267,12 +301,12 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.03"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: RounyPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: RounyPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieLamp
   name: lamp plushie
   description: A light emitting friend!
@@ -284,12 +318,12 @@
     radius: 1.5
     energy: 2
     netsync: false
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: LampPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: LampPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieArachind
   name: arachnid plushie
   description: An adorable stuffed toy that resembles an arachnid. It feels silky..
@@ -317,12 +351,12 @@
     sprite: Objects/Fun/Plushies/arachnid.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: ArachnidPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: ArachnidPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieLizard #Weh!
   name: lizard plushie
   description: An adorable stuffed toy that resembles a lizardperson. Made by CentComm as a token initiative to combat speciesism in work environments. "Welcome your new colleagues as you do this plush, with open arms!"
@@ -355,11 +389,15 @@
     sprite: Objects/Fun/Plushies/lizard.rsi
     slots:
     - HEAD
+    clothingVisuals:
+      head:
+      - state: equipped-HELMET
+        offset: "0, 0.03"
   - type: Speech
     speechVerb: Reptilian # for pais (In the secret stash)
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: LizardPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: LizardPlushie
   - type: Tag
     tags:
     - Payload
@@ -379,7 +417,7 @@
         Quantity: 10
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieExperiment #Arf!
   name: experiment plushie
   description: A plushie of a canid of sorts. It yearns to be detonated on a landmine.
@@ -422,9 +460,9 @@
     sprite: Objects/Fun/Plushies/expi.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: ExperimentPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: ExperimentPlushie
   - type: Tag
     tags:
     - Payload
@@ -448,6 +486,7 @@
       head:
       - state: rainbowlizardplush-equipped-HELMET
         shader: unshaded
+        offset: "0, 0.03"
   - type: Item
     inhandVisuals:
       left:
@@ -503,10 +542,10 @@
     clothingVisuals:
       head:
       - state: spacelizard-equipped-HELMET
-        offset: "0, 0.03"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: SpaceLizardPlushie
+        offset: "0, 0.09"
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: SpaceLizardPlushie
 
 - type: entity
   parent: PlushieLizard
@@ -553,12 +592,16 @@
     equippedPrefix: plushielizardinversed
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: InversedLizardPlushie
+    clothingVisuals:
+      head:
+      - state: plushielizardinversed-equipped-HELMET
+        offset: "0, 0.03"
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: InversedLizardPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieDiona # TODO Better way of doing the flowering visuals. Probably make it an "AppearanceChangeEntityEffect" on reactive?
   name: diona plushie
   description: An adorable stuffed toy that resembles a diona. Love water and cuddles. Do not wet!
@@ -630,12 +673,12 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.09"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: DionaPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: DionaPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieSharkBlue
   name: blue shark soft toy
   description: Big and safe to have by your side if you want to discover the world below the surface of the ocean.
@@ -663,9 +706,9 @@
   - type: Item
     heldPrefix: blue
     storedRotation: -90
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: BlueSharkPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: BlueSharkPlushie
   - type: Tag
     tags:
     - PlushieSharkBlue
@@ -683,9 +726,9 @@
     state: pink
   - type: Item
     heldPrefix: pink
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: PinkSharkPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: PinkSharkPlushie
   - type: Tag
     tags:
     - PlushieSharkPink
@@ -703,9 +746,9 @@
     state: grey
   - type: Item
     heldPrefix: grey
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: GreySharkPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: GreySharkPlushie
   - type: Tag
     tags:
     - PlushieSharkGrey
@@ -713,7 +756,7 @@
     - ClothMade
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieNormal
   id: PlushieRatvar
   name: ratvar plushie
   description: A large stuffed doll of the elder god Ratvar.
@@ -722,7 +765,6 @@
     sprite: Objects/Fun/Plushies/ratvar.rsi
     state: icon
   - type: Item
-    size: Normal
     sprite: Objects/Fun/Plushies/ratvar.rsi
   - type: MultiHandedItem
   - type: Clothing
@@ -730,12 +772,12 @@
     sprite: Objects/Fun/Plushies/ratvar.rsi
     slots:
     - neck
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: RatvarPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: RatvarPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieNormal
   id: PlushieNar
   name: nar'sie plushie
   description: A large stuffed doll of the elder goddess Nar'Sie.
@@ -744,7 +786,6 @@
     sprite: Objects/Fun/Plushies/narsie.rsi
     state: icon
   - type: Item
-    size: Normal
     sprite: Objects/Fun/Plushies/narsie.rsi
   - type: MultiHandedItem
   - type: Clothing
@@ -752,12 +793,12 @@
     sprite: Objects/Fun/Plushies/narsie.rsi
     slots:
     - neck
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: NarPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: NarPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieCarp
   name: carp plushie
   description: An adorable stuffed toy that resembles the monstrous space carp.
@@ -787,16 +828,9 @@
     soundHit: *PlushieCarpSound
     angle: 0
     animation: WeaponArcBite # Rrrr!
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: CarpPlushie
-  - type: GibThisGuy  # Goobstation
-    requireBoth: false
-    icNames:
-    - Aubrey White
-    ocNames:
-    - TheAmped #Removed when I "make something fun"
-    - SolsticeOfTheWinter
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: CarpPlushie
   - type: Tag
     tags:
     - Payload
@@ -817,9 +851,9 @@
       - state: magicarpplush-inhand-left
       right:
       - state: magicarpplush-inhand-right
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: MagicarpPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: MagicarpPlushie
   - type: Tag
     tags:
     - Payload
@@ -862,9 +896,9 @@
       - state: holocarpplush-inhand-left
       right:
       - state: holocarpplush-inhand-right
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: HolocarpPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: HolocarpPlushie
   - type: Tag
     tags:
     - Payload
@@ -872,7 +906,7 @@
     - PlushieCarpHolo
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieSlime
   name: slime plushie
   description: An adorable stuffed toy that resembles a slime. It's basically a hacky sack.
@@ -900,12 +934,12 @@
     sprite: Objects/Fun/Plushies/slime.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: SlimePlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: SlimePlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieSnake
   name: snake plushie
   description: An adorable stuffed toy that resembles a snake.
@@ -938,12 +972,12 @@
     - NECK
   - type: Speech
     speechVerb: Reptilian # for pais (In the secret stash)
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: SnakePlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: SnakePlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: ToyMouse
   name: mouse toy
   description: A colorful toy mouse!
@@ -972,12 +1006,12 @@
     sprite: Objects/Fun/toy_mouse.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: MousePlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: MousePlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieVox
   name: vox plushie
   description: SKREEEEEEEEEEEE!
@@ -1011,12 +1045,12 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.09"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: VoxPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: VoxPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieAtmosian
   name: atmosian plushie
   description: An adorable stuffed toy that resembles a brave atmosian. Unfortunately, he won't fix those depressurizations for you.
@@ -1033,12 +1067,12 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.04"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: AtmosianPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: AtmosianPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieNormal
   id: PlushieXeno
   name: xeno plushie
   description: An adorable stuffed toy that resembles a scary xenomorf. You're lucky it's just a toy.
@@ -1046,8 +1080,6 @@
   - type: Sprite
     sprite: Objects/Fun/Plushies/xeno.rsi
     state: icon
-  - type: Item
-    size: Normal
   - type: EmitSoundOnUse
     sound: &PlushieXenoSound
       path: /Audio/Weapons/Xeno/alien_spitacid.ogg
@@ -1074,12 +1106,12 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.03"
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: XenoPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: XenoPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushiePenguin
   name: penguin plushie
   description: I use arch btw!
@@ -1092,12 +1124,12 @@
     sprite: Objects/Fun/Plushies/penguin.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: PenguinPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: PenguinPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieHuman
   name: human plushie
   description: This is a felt plush of a human. All craftsmanship is of the lowest quality. The human is naked. The human is crying. The human is screaming.
@@ -1139,12 +1171,12 @@
     sprite: Objects/Fun/Plushies/human.rsi
     slots:
     - HEAD
-#  - type: FoodSequenceElement
-#    entries:
-#      CottonBurger: HumanPlushie
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: HumanPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieMoth
   name: moth plushie
   description: Cute and fluffy moth plushie. Enjoy, bz!
@@ -1177,8 +1209,84 @@
       CottonBurger: MothPlushie
 
 - type: entity
+  parent: BasePlushieSmall
+  id: PlushieSheep
+  name: sheep plushie
+  description: A soft, wooly, stuffed sheep. 100% cotton.
+  components:
+  - type: Sprite
+    sprite: Objects/Fun/Plushies/sheep.rsi
+    state: sheeptoy
+  - type: Item
+    sprite: Objects/Fun/Plushies/sheep.rsi
+    heldPrefix: sheeptoy
+    storedRotation: -90
+  - type: EmitSoundOnUse
+    sound: &PlushieSheepSound
+      collection: Sheep
+      params:
+        variation: 0.05
+  - type: EmitSoundOnLand
+    sound: *PlushieSheepSound
+  - type: EmitSoundOnActivate
+    sound: *PlushieSheepSound
+  - type: EmitSoundOnTrigger
+    sound: *PlushieSheepSound
+  - type: EmitSoundOnCollide
+    sound: *PlushieSheepSound
+  - type: Edible
+    requiresSpecialDigestion: true
+    useSound: *PlushieSheepSound
+  - type: MeleeWeapon
+    wideAnimationRotation: 90
+    soundHit: *PlushieSheepSound
+    angle: 0
+    animation: WeaponArcFist
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: SheepPlushie
+  - type: Tag
+    tags:
+    - ClothMade
+
+- type: entity
+  parent: PlushieSheep
+  id: PlushieSpaceSheep
+  name: space sheep plushie
+  description: A soft, wooly, cosmically stuffed sheep. 100% cotton.
+  components:
+  - type: Sprite
+    sprite: Objects/Fun/Plushies/sheep.rsi
+    state: spacesheeptoy
+  - type: Item
+    sprite: Objects/Fun/Plushies/sheep.rsi
+    heldPrefix: spacesheeptoy
+  - type: FoodSequenceElement
+    entries:
+      CottonBurger: SheepSpacePlushie
+  - type: EmitSoundOnUse
+    sound: &PlushieSpaceSheepSound
+      collection: SheepSpace
+      params:
+        variation: 0.05
+  - type: EmitSoundOnLand
+    sound: *PlushieSpaceSheepSound
+  - type: EmitSoundOnActivate
+    sound: *PlushieSpaceSheepSound
+  - type: EmitSoundOnTrigger
+    sound: *PlushieSpaceSheepSound
+  - type: EmitSoundOnCollide
+    sound: *PlushieSpaceSheepSound
+  - type: Edible
+    requiresSpecialDigestion: true
+    useSound: *PlushieSpaceSheepSound
+  - type: MeleeWeapon
+    wideAnimationRotation: 90
+    soundHit: *PlushieSpaceSheepSound
+
+- type: entity
   abstract: true # Trauma - no ERP
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: PlushieVulp
   name: vulpkanin plushie
   description: An adorable stuffed toy that resembles a vulpkanin. Yip! Yap!
@@ -1219,7 +1327,7 @@
       CottonBurger: PlushieVulp
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieTiny
   id: ToyIan
   name: ian toy
   description: Unable to eat, but just as fluffy as the real guy!
@@ -1236,10 +1344,9 @@
       head:
       - state: equipped-HELMET
         offset: "0, 0.06"
-  - type: Item
-    size: Tiny
   - type: EmitSoundOnUse
     sound: &SoundIan
+      path: /Audio/Items/Toys/ian.ogg
   - type: EmitSoundOnLand
     sound: *SoundIan
   - type: EmitSoundOnActivate
@@ -1257,7 +1364,7 @@
       CottonBurger: IanPlushie
 
 - type: entity
-  parent: BasePlushie
+  parent: BasePlushieSmall
   id: ToyAmongPequeno
   name: among pequeño
   description: Sus!

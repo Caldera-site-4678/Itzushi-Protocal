@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+using Content.Shared.Administration.Systems;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Popups;
 using Content.Shared.Storage.EntitySystems;
@@ -15,6 +16,7 @@ public sealed partial class ActionLairTeleportSystem : EntitySystem
     [Dependency] private TeleportSystem _teleport = default!;
     [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private SharedEntityStorageSystem _storage = default!;
+    [Dependency] private RejuvenateSystem _rejuvenate = default!;
 
     public override void Initialize()
     {
@@ -29,13 +31,13 @@ public sealed partial class ActionLairTeleportSystem : EntitySystem
 
         if (TerminatingOrDeleted(ent.Comp.Lair) || ent.Comp.Lair is not { } lair)
         {
-            _popup.PopupClient("You do not have a lair anymore!", user, user, PopupType.MediumCaution);
+            _popup.PopupEntity("You do not have a lair anymore!", user, user, PopupType.MediumCaution);
             return;
         }
 
         if (_mob.IsAlive(user))
         {
-            _popup.PopupClient("You can not teleport to your lair while alive!", user, user, PopupType.MediumCaution);
+            _popup.PopupEntity("You can not teleport to your lair while alive!", user, user, PopupType.MediumCaution);
             return;
         }
 
@@ -51,6 +53,7 @@ public sealed partial class ActionLairTeleportSystem : EntitySystem
             _container.Insert(user, store);
         }
 
+        _rejuvenate.PerformRejuvenate(user);
         args.Handled = true;
     }
 

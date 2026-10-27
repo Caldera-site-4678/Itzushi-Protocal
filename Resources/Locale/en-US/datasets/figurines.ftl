@@ -51,7 +51,8 @@ figurines-ce-4 = SINGULOOSE!
 figurines-ce-5 = TESLOOSE!
 figurines-ce-6 = Power's out again.
 
-figurines-atmostech-1 = I put plasma in distro.
+# Trauma - plasma -> phoron
+figurines-atmostech-1 = I put phoron in distro.
 figurines-atmostech-2 = I will burn you in a burn chamber.
 figurines-atmostech-3 = Frezon...
 figurines-atmostech-4 = Tritium...
@@ -117,7 +118,8 @@ figurines-scientist-6 = The anomaly exploded!
 
 # Security
 
-figurines-hos-1 = Space law? What?
+# Trauma - Space Law -> Corporate Law
+figurines-hos-1 = Corporate law? What?
 figurines-hos-2 = Shoot the clown.
 figurines-hos-3 = Yes, I shot the clown. No, I don't regret it.
 figurines-hos-4 = Clown is now KOS.
@@ -134,7 +136,8 @@ figurines-security-2 = You have violated article 1984.
 figurines-security-3 = Whenever I get bored I use the clown as target practice.
 figurines-security-4 = You have two rights: to remain silent and to cry about it.
 figurines-security-5 = Harmbaton? It sure as hell harms!
-figurines-security-6 = Space law? Never heard of it.
+# Trauma - Space Law -> Corporate Law
+figurines-security-6 = Corporate law? Never heard of it.
 figurines-security-7 = Random search! Hand it over.
 figurines-security-8 = I love donuts.
 figurines-security-9 = Greytide this, motherfucker.
@@ -160,7 +163,8 @@ figurines-hop-7 = Has anyone seen Ian?
 figurines-bartender-1 = Where's my monkey?
 figurines-bartender-2 = Sec won't drink.
 figurines-bartender-3 = I mixed a little something in there...
-figurines-bartender-4 = The recipe? Plasma and vomit. Why?
+# Trauma - plasma -> phoron
+figurines-bartender-4 = The recipe? Phoron and vomit. Why?
 figurines-bartender-5 = I need those toxins for my drinks, officer!
 figurines-bartender-6 = Read the room.
 figurines-bartender-7 = I've got a shotgun.
@@ -221,7 +225,8 @@ figurines-janitor-9 = Another day, another body.
 figurines-lawyer-1 = Better Call Saul!
 figurines-lawyer-2 = Objection!
 figurines-lawyer-3 = Did you know that you have rights?
-figurines-lawyer-4 = Space law says!
+# Trauma - Space Law -> Corporate Law
+figurines-lawyer-4 = Corporate law says!
 figurines-lawyer-5 = Sign the contract first.
 figurines-lawyer-6 = My client is innocent!
 figurines-lawyer-7 = I'm suing.

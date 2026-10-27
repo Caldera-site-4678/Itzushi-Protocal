@@ -15,7 +15,6 @@ using Content.Shared.CCVar;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Fluids;
 using Content.Shared.Interaction;
-using Content.Shared.Timing;
 using Robust.Server.GameObjects;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Configuration;
@@ -23,7 +22,9 @@ using Robust.Shared.Physics.Components;
 using System.Numerics;
 using Content.Shared.Fluids.EntitySystems;
 using Content.Shared.Fluids.Components;
+using Content.Shared.Timing.Systems;
 using Robust.Server.Containers;
+using Robust.Shared.Audio;
 using Robust.Shared.Map;
 
 namespace Content.Server.Fluids.EntitySystems;
@@ -32,7 +33,6 @@ public sealed partial class SpraySystem : SharedSpraySystem
 {
     // <Trauma>
     [Dependency] private InventorySystem _inventory = default!;
-    [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private EntityWhitelistSystem _whitelist = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
@@ -191,7 +191,7 @@ public sealed partial class SpraySystem : SharedSpraySystem
 
                 if (TryComp(vapor, out AppearanceComponent? appearance))
                 {
-                    _appearance.SetData(vapor, VaporVisuals.Color, solution.GetColor(_proto).WithAlpha(1f), appearance);
+                    _appearance.SetData(vapor, VaporVisuals.Color, solution.GetColor(ProtoMan).WithAlpha(1f), appearance);
                     _appearance.SetData(vapor, VaporVisuals.State, true, appearance);
                 }
 
@@ -217,8 +217,7 @@ public sealed partial class SpraySystem : SharedSpraySystem
 
                 _audio.PlayPvs(entity.Comp.SpraySound, entity, entity.Comp.SpraySound.Params.WithVariation(0.125f));
 
-                if (TryComp<UseDelayComponent>(entity, out var useDelay))
-                    _useDelay.TryResetDelay((entity.Owner, useDelay));
+                _useDelay.TryResetDelay(entity.Owner);
 
                 return;
             }
@@ -288,7 +287,7 @@ public sealed partial class SpraySystem : SharedSpraySystem
                 {
                     // push back the grid the player is standing on
                     var userTransform = Transform(thingGettingPushed);
-                    if (userTransform.GridUid == userTransform.ParentUid)
+                    if (userTransform.GridUid == userTransform.ParentUid && userTransform.ParentUid != userTransform.MapUid) // Trauma - check map too
                     {
                         // apply both linear and angular momentum depending on the player position
                         // multiply by a cvar because grid mass is currently extremely small compared to all other masses
@@ -300,11 +299,15 @@ public sealed partial class SpraySystem : SharedSpraySystem
             accumulatedVehiclePush += -impulseDirection * entity.Comp.PushbackAmount; // Goobstation - Vehicle Spray Pushback (Office chairs)
         }
 
+        // <Trauma>
         if (user != null)
-            RaiseLocalEvent(user.Value, new SprayUserImpulseEvent(accumulatedVehiclePush));  // Goobstation - Vehicle Spray Pushback (Office chairs)
+            RaiseLocalEvent(user.Value, new SprayUserImpulseEvent(accumulatedVehiclePush));
+        // </Trauma>
 
-        _audio.PlayPvs(entity.Comp.SpraySound, entity, entity.Comp.SpraySound.Params.WithVariation(0.125f));
+        var audioParams = entity.Comp.SpraySound?.Params ?? AudioParams.Default;
+        audioParams = audioParams.WithVariation(0.125f);
+        _audio.PlayPvs(entity.Comp.SpraySound, entity, audioParams);
 
-        _useDelay.TryResetDelay(entity);
+        _useDelay.TryResetDelay(entity.Owner);
     }
 }

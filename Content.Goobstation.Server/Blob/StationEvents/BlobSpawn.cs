@@ -2,10 +2,10 @@
 
 using System.Linq;
 using Content.Goobstation.Common.Blob;
-using Content.Server.Ghost.Roles.Events;
 using Content.Server.StationEvents.Components;
 using Content.Server.StationEvents.Events;
 using Content.Shared.GameTicking.Components;
+using Content.Shared.Ghost;
 using Content.Shared.Nutrition.Components;
 using Robust.Server.Player;
 using Robust.Shared.Map;
@@ -20,20 +20,11 @@ public sealed partial class BlobSpawnRule : StationEventSystem<BlobSpawnRuleComp
 
     public static readonly EntProtoId BlobRule = "BlobRule";
 
-    public override void Initialize()
+    protected override void Started(Entity<BlobSpawnRuleComponent, GameRuleComponent> ent, ref GameRuleStartedEvent args)
     {
-        base.Initialize();
-        SubscribeLocalEvent<BlobCarrierComponent, GhostRoleSpawnerUsedEvent>(OnSpawned);
-    }
+        base.Started(ent, ref args);
 
-    protected override void Started(EntityUid uid,
-        BlobSpawnRuleComponent component,
-        GameRuleComponent gameRule,
-        GameRuleStartedEvent args)
-    {
-        base.Started(uid, component, gameRule, args);
-
-        if (GetRandomStationGrids() is not { } stationGrids)
+        if (Station.GetRandomStationGrids() is not { } stationGrids)
             return;
 
         var locations = EntityQueryEnumerator<VentCritterSpawnLocationComponent, TransformComponent>();
@@ -50,14 +41,15 @@ public sealed partial class BlobSpawnRule : StationEventSystem<BlobSpawnRuleComp
             return;
         }
 
+        var comp = ent.Comp1;
         var playerPool = _playerSystem.Sessions.ToList();
-        var numBlobs = MathHelper.Clamp(playerPool.Count / component.PlayersPerCarrierBlob, 1, component.MaxCarrierBlob);
+        var numBlobs = MathHelper.Clamp(playerPool.Count / comp.PlayersPerCarrierBlob, 1, comp.MaxCarrierBlob);
 
         for (var i = 0; i < numBlobs; i++)
         {
             var coords = _random.Pick(validLocations);
             Sawmill.Info($"Creating carrier blob at {coords}");
-            Spawn(_random.Pick(component.CarrierBlobProtos), coords);
+            Spawn(comp.CarrierBlobProto, coords);
         }
 
         // start blob rule incase it isn't, for the sweet greentext
@@ -66,10 +58,11 @@ public sealed partial class BlobSpawnRule : StationEventSystem<BlobSpawnRuleComp
 
     // Because GameRule spawns just a GhostRoleSpawner, we can't just remove components
     // right away, and need to track the event when entity is spawned.
-    private void OnSpawned(EntityUid uid, BlobCarrierComponent component, GhostRoleSpawnerUsedEvent args)
+    [SubscribeLocalEvent]
+    private void OnSpawned(Entity<BlobCarrierComponent> ent, ref GhostRoleSpawnerUsedEvent args)
     {
         var carrier = args.Spawned;
-        if (!TryComp<BlobCarrierComponent>(carrier, out _))
+        if (!HasComp<BlobCarrierComponent>(carrier))
             return;
 
         // Blob doesn't spawn when blob carrier was eaten.

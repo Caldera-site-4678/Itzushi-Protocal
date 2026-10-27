@@ -34,7 +34,6 @@ public sealed partial class EmotesUIController : UIController, IOnStateChanged<G
                 new SpriteSpecifier.Rsi(new ResPath("/Textures/Clothing/Hands/Gloves/latex.rsi"), "icon")),
             [EmoteCategory.Vocal] = ("emote-menu-category-vocal",
                 new SpriteSpecifier.Texture(new ResPath("/Textures/Interface/Emotes/vocal.png"))),
-            [EmoteCategory.Farts] = ("emote-menu-category-farts", new SpriteSpecifier.Texture(new("/Textures/_Goobstation/Interface/Emotes/fart.png"))), // Goobstation (obviously)
         };
 
     public void OnStateEntered(GameplayState state)
@@ -142,7 +141,7 @@ public sealed partial class EmotesUIController : UIController, IOnStateChanged<G
         Dictionary<EmoteCategory, List<RadialMenuOptionBase>> emotesByCategory = new();
         foreach (var emote in emotePrototypes)
         {
-            if(emote.Category == EmoteCategory.Invalid)
+            if (emote.Category == EmoteCategory.Invalid)
                 continue;
 
             // only valid emotes that have ways to be triggered by chat and player have access / no restriction on

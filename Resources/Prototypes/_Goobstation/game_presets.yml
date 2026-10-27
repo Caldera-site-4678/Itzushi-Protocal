@@ -17,7 +17,7 @@
   - MeteorSwarmScheduler
   - SpaceTrafficControlEventScheduler
   - SubGamemodesRule
-  - Changeling
+  - ChangelingRuleRoundstart
 
 # no subgamemodes for the mixed presets
 
@@ -129,7 +129,6 @@
   - SpaceTrafficControlEventScheduler
   - SubGamemodesRule
   - BlobGameMode
-  - CalmTraitor
 
 - type: gamePreset
   id: Honkops
@@ -155,7 +154,7 @@
   name: xenomorph-title
   description: xenomorph-description
   showInVote: false
-  minPlayers: 30
+  minPlayers: 40
   rules:
   - BasicRoundstartVariation
   - BasicStationEventScheduler

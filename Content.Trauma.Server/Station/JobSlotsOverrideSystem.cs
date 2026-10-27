@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
 using Content.Shared.Roles;
+using Content.Shared.Station.Components;
 using Content.Trauma.Shared.Station;
 using Robust.Shared.Player;
 
@@ -14,17 +14,10 @@ namespace Content.Trauma.Server.Station;
 /// </summary>
 public sealed partial class JobSlotsOverrideSystem : EntitySystem
 {
-    [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private ISharedPlayerManager _player = default!;
-    [Dependency] private StationJobsSystem _stationJobs = default!;
+    [Dependency] private ServerStationJobsSystem _stationJobs = default!;
 
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        SubscribeLocalEvent<StationJobsComponent, MapInitEvent>(OnMapInit);
-    }
-
+    [SubscribeLocalEvent]
     private void OnMapInit(Entity<StationJobsComponent> ent, ref MapInitEvent args)
     {
         if (GetSlotsOverride() is not {} proto)
@@ -75,7 +68,7 @@ public sealed partial class JobSlotsOverrideSystem : EntitySystem
     private JobSlotsOverridePrototype? GetSlotsOverride()
     {
         int pop = _player.PlayerCount;
-        foreach (var proto in _proto.EnumeratePrototypes<JobSlotsOverridePrototype>())
+        foreach (var proto in ProtoMan.EnumeratePrototypes<JobSlotsOverridePrototype>())
         {
             if (proto.Min is {} min && pop < min || proto.Max is {} max && pop > max)
                 continue;

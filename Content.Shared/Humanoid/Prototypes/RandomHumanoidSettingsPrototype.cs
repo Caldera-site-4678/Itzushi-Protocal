@@ -11,7 +11,7 @@ public sealed partial class RandomHumanoidSettingsPrototype : IPrototype, IInher
 {
     [IdDataField] public string ID { get; private set; } = default!;
 
-    [ParentDataField(typeof(PrototypeIdArraySerializer<RandomHumanoidSettingsPrototype>))]
+    [ParentDataField(typeof(AbstractPrototypeIdArraySerializer<RandomHumanoidSettingsPrototype>))]
     public string[]? Parents { get; private set; }
 
     [AbstractDataField]
@@ -31,16 +31,9 @@ public sealed partial class RandomHumanoidSettingsPrototype : IPrototype, IInher
     public HashSet<string> SpeciesBlacklist { get; private set; } = new();
 
     /// <summary>
-    ///     Goobstation
-    ///     Specie that will be used.
-    /// </summary>
-    [DataField]
-    public string? SpeciesWhitelist { get; private set; }
-
-    /// <summary>
     ///     Extra components to add to this entity.
     /// </summary>
     [DataField]
     [AlwaysPushInheritance]
-    public ComponentRegistry? Components { get; private set; }
+    public ComponentRegistry Components = new(); // Trauma - non-nullable, default to empty
 }

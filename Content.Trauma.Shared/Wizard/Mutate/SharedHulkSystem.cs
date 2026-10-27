@@ -13,13 +13,13 @@ using Content.Shared.Weapons.Melee.Events;
 using Content.Trauma.Common.Cuffs;
 using Content.Trauma.Common.Knockdown;
 using Content.Trauma.Common.Wizard;
+using Content.Trauma.Shared.MartialArts;
 
 namespace Content.Trauma.Shared.Wizard.Mutate;
 
 public abstract partial class SharedHulkSystem : EntitySystem
 {
     [Dependency] private SharedCuffableSystem _cuffs = default!;
-    [Dependency] private IPrototypeManager _prototype = default!;
 
     public static readonly EntProtoId StatusEffectStunned = "StatusEffectStunned";
     public static readonly ProtoId<DamageTypePrototype> Structural = "Structural";
@@ -43,7 +43,7 @@ public abstract partial class SharedHulkSystem : EntitySystem
     private void OnStartup(Entity<HulkComponent> ent, ref ComponentStartup args)
     {
         UpdateColorStartup(ent);
-        ent.Comp.StructuralDamage ??= new DamageSpecifier(_prototype.Index(Structural), 80f);
+        ent.Comp.StructuralDamage ??= new DamageSpecifier(ProtoMan.Index(Structural), 80f);
     }
 
     private void OnMeleeHit(Entity<HulkComponent> ent, ref MeleeHitEvent args)
@@ -58,6 +58,12 @@ public abstract partial class SharedHulkSystem : EntitySystem
 
         if (args.HitEntities.Count > 0)
             Roar(ent, 0.2f);
+    }
+
+    [SubscribeLocalEvent]
+    private void OnComboAttempt(Entity<HulkComponent> ent, ref ComboAttemptEvent args)
+    {
+        args.Cancelled |= ent.Comp.MartialsBlocked;
     }
 
     private void OnSlipAttempt(Entity<HulkComponent> ent, ref SlipAttemptEvent args)

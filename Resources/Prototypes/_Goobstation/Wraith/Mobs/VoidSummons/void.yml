@@ -2,8 +2,8 @@
 
 # This holds all mobs that can be summoned by Summon void creature action
 - type: entity
+  parent: [ BaseMob, MobCombat, MobNightVision ]
   id: MobSkeletonCommander
-  parent: [ BaseMob, MobCombat ]
   name: skeleton commander
   description: A bulky skeleton here to encourage his friends.
   components:
@@ -35,16 +35,16 @@
   - type: Vocal
     wilhelm: "/Audio/_Goobstation/Voice/badtothebone.ogg"
     wilhelmProbability: 0.1
-    sounds:
-      Male: Skeleton
-      Female: Skeleton
-      Unsexed: Skeleton
+    emoteSounds: Skeleton
   - type: Sprite
     drawdepth: Mobs
     sprite: _Goobstation/Wraith/Mobs/skeletoncommander.rsi
     layers:
       - state: skeleton_commander
-  - type: MeleeWeapon #TO DO: Increase attack range of this fella. Parity and what not.
+  - type: MeleeThrowOnHit
+    distance: 1
+    speed: 5
+  - type: MeleeWeapon
     altDisarm: false
     angle: 0
     animation: WeaponArcSlash
@@ -52,8 +52,10 @@
       collection: Flesh_Stab
     damage:
       types:
-        Blunt: 7
+        Piercing: 10
         Slash: 5
+        Structural: 30
+    range: 2
   - type: MobState
   - type: Fixtures
     fixtures:
@@ -91,7 +93,7 @@
     thresholds:
       - trigger:
           !type:DamageTrigger
-          damage: 50
+          damage: 75
         behaviors:
           - !type:DoActsBehavior
             acts: [ "Destruction" ]
@@ -103,19 +105,15 @@
               OrganSkeletonPersonHead:
                 min: 1
                 max: 1
-  - type: NightVision # Goobstation - Nigthvision
-    color: white
-    activateSound: null
-    deactivateSound: null
   - type: Prying
     pryPowered: true
     force: true
     speedModifier: 2.5
 
 - type: entity
-  name: Tentacle fiend
-  parent: MobCorgiNarsi
+  parent: [ MobCorgiNarsi, MobNightVision ]
   id: MobVoidSpiker
+  name: tentacle fiend
   description: Standing still is probably not a good idea.
   components:
   - type: MindContainer
@@ -149,26 +147,23 @@
       collection: Flesh_Stab
     damage:
       types:
-        Slash: 4 #Very weak damage, but makes target sleep on attack. I'm not sure if our balance fits with Goon's balance, because 4 damage is pathetically weak, but this creature might be only for kidnapping.
-  - type: Solution
-    id: melee
-    solution:
-      reagents:
-      - ReagentId: Nocturine
-        Quantity: 100
+        Slash: 6 #Very weak damage, but makes target sleep on attack. I'm not sure if our balance fits with Goon's balance, because 4 damage is pathetically weak, but this creature might be only for kidnapping.
+  - type: SolutionManager
+    solutions:
+    - SolutionVoidSpiker
   - type: MeleeChemicalInjector
     solution: melee
-    transferAmount: 1
+    transferAmount: 2.5
   - type: TentacleHook
   - type: SpikerLash
   - type: SpikerShuffle
     statusEffectsToRemove:
-    - Stun
     - Electrocution
     - SlowedDown
     - Stutter
     newEffectsToRemove:
     - StatusEffectBlindness
+    - StatusEffectStunned
   - type: ActionGrant
     actions:
     - ActionTentacleHook
@@ -192,29 +187,38 @@
       gender: male
       proper: true
   - type: Vocal
-    sounds:
-      Male: UnisexArachnid
-      Female: UnisexArachnid
-      Unsexed: UnisexArachnid
+    emoteSounds: UnisexArachnid
   - type: LanguageSpeaker
     speaks:
     - Dog
     understands:
     - Dog
     - TauCetiBasic
-  - type: NightVision # Goobstation - Nigthvision
-    color: purple
-    activateSound: null
-    deactivateSound: null
   - type: Prying
     pryPowered: true
     force: true
     speedModifier: 2.5
 
 - type: entity
-  name: Voidhound
-  parent: MobCorgiNarsi
+  parent: [SolutionWeapon, SolutionTiny]
+  id: SolutionVoidSpiker
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Solution
+    solution:
+      reagents:
+      - ReagentId: Nocturine
+        Quantity: 30
+  - type: SolutionRegeneration
+    generated:
+      reagents:
+      - ReagentId: Nocturine
+        Quantity: 1
+
+- type: entity
+  parent: [ MobCorgiNarsi, MobNightVision ]
   id: MobVoidHound
+  name: voidhound
   description: You probably shouldn't be staring at this thing.
   components:
   - type: MindContainer
@@ -242,6 +246,7 @@
       Dead:
         Base: dead_voidHound
   - type: MeleeWeapon
+    attackRate: 1.5
     altDisarm: false
     animation: WeaponArcBite
     damage:
@@ -276,10 +281,7 @@
     - DoorBumpOpener
     - VimPilot
   - type: Vocal
-    sounds:
-      Male: Cerberus
-      Female: Cerberus
-      Unsexed: Cerberus
+    emoteSounds: Cerberus
   - type: LanguageSpeaker
     speaks:
     - Dog
@@ -289,10 +291,6 @@
   - type: MovementSpeedModifier
     baseWalkSpeed: 5
     baseSprintSpeed: 5
-  - type: NightVision # Goobstation - Nigthvision
-    color: purple
-    activateSound: null
-    deactivateSound: null
   - type: Prying
     pryPowered: true
     force: true

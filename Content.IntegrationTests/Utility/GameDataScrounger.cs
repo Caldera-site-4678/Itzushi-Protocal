@@ -127,9 +127,18 @@ public static partial class GameDataScrounger
             }
             else
             {
-                Scrounge();
-
-                return _entitiesWithComponentIndex[componentId].ToArray();
+                // <Trauma> - catch exceptions so they dont just get dropped
+                try
+                {
+                    Scrounge();
+                    return _entitiesWithComponentIndex[componentId].ToArray();
+                }
+                catch (Exception e)
+                {
+                    Logger.ErrorS("scrounger", $"Caught error while scrounging prototypes: {e}");
+                    return [];
+                }
+                // </Trauma>
             }
         }
     }
@@ -169,17 +178,15 @@ public static partial class GameDataScrounger
             // Take a directory off the stack.
             var dir = explorationStack.Pop();
 
-            if (ignoreList.Contains(dir))
-                continue; // It's all abstract anyway.
+            var ignoredDir = ignoreList.Contains(Path.GetFullPath(dir));
 
             explorationStack.AddRange(Directory.EnumerateDirectories(dir));
 
             foreach (var file in Directory.EnumerateFiles(dir, "*.yml"))
             {
-                if (ignoreList.Contains(file))
-                    continue; // It's all abstract anyway.
+                var ignored = ignoredDir || ignoreList.Contains(Path.GetFullPath(file));
 
-                foreach (var (kind, id) in IndexPrototypesIn(file))
+                foreach (var (kind, id) in IndexPrototypesIn(file, ignored))
                 {
                     // alternate universe where .net has rust's Entry api.
                     if (!_prototypeIndex.TryGetValue(kind, out var list))
@@ -204,8 +211,9 @@ public static partial class GameDataScrounger
     ///     yielding all (type, id) pairs.
     /// </summary>
     /// <param name="file">The file to index.</param>
+    /// <param name="ignored">Whether or not the file is ignored. This treats the entire file as abstract.</param>
     /// <returns>An enumerator of all prototypes in the file, regardless of kind.</returns>
-    private static IEnumerable<(string type, string id)> IndexPrototypesIn(string file)
+    private static IEnumerable<(string type, string id)> IndexPrototypesIn(string file, bool ignored = false)
     {
         var stream = new YamlStream();
 
@@ -222,8 +230,13 @@ public static partial class GameDataScrounger
                 var entryMapping = (YamlMappingNode)entry;
 
                 var id = entryMapping[IdNode];
+
+                // TODO: Add handling for prototype variants
+                if (id is YamlMappingNode)
+                    continue;
+
                 var type = entryMapping[TypeNode];
-                var @abstract = false;
+                var @abstract = ignored;
                 if (entryMapping.TryGetNode("abstract", out YamlScalarNode? abstractNode))
                 {
                     // TODO: This technically will exclude prototypes that use the abstract field for their own stuff,
@@ -270,7 +283,11 @@ public static partial class GameDataScrounger
                 var entity = new EntityMetadata()
                 {
                     Abstract = @abstract,
-                    Components = components?.Children.Select(x => x["type"].ToString()).ToHashSet() ?? new(),
+                    // <Trauma> - check if type exists first
+                    Components = components?.Children
+                        .Where(x => x is YamlMappingNode map && map.Children.ContainsKey("type"))
+                        .Select(x => x["type"].ToString()).ToHashSet() ?? new(),
+                    // </Trauma>
                     Parents = parents,
                     Id = id.AsString(),
                 };
@@ -321,7 +338,10 @@ public static partial class GameDataScrounger
 
         foreach (var parent in entity.Parents)
         {
-            var parentMeta = _entitiesMetaIndex![parent];
+            // <Trauma> - skip generated prototypes instead of throwing and breaking the whole thing
+            if (!_entitiesMetaIndex!.TryGetValue(parent, out var parentMeta))
+                continue;
+            // </Trauma>
             VisitEntity(parentMeta, visitedEntities);
 
             entity.Components.UnionWith(parentMeta.Components);
@@ -359,7 +379,7 @@ public static partial class GameDataScrounger
                     if (entry is not YamlScalarNode { Value: {} value })
                         throw new Exception($"An entry in {path} is not a valid YAML scalar/string literal. Entry: {entry}");
 
-                    ignores.Add(value);
+                    ignores.Add(Path.GetFullPath($"{resDir}{value}"));
                 }
             }
         }

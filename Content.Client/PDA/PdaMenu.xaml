@@ -79,12 +79,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             </ContainerButton>
         </BoxContainer>
         <ScrollContainer HorizontalExpand="True" VerticalExpand="True" HScrollEnabled="True">
-            <BoxContainer Orientation="Vertical"
-                          VerticalExpand="True"
-                          HorizontalExpand="True"
-                          MinSize="50 50"
-                          Name="ProgramList"
-                          Margin="4"/>
+            <GridContainer VerticalExpand="True"
+                           HorizontalExpand="True"
+                           MinSize="50 50"
+                           Name="ProgramList"
+                           Margin="4"
+                           Columns="2" />
         </ScrollContainer>
         <ScrollContainer HorizontalExpand="True" VerticalExpand="True" HScrollEnabled="True">
             <BoxContainer Orientation="Vertical"
@@ -106,6 +106,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                                        Visible="False"
                                        Text="{Loc 'pda-bound-user-interface-show-uplink-title'}"
                                        Description="{Loc 'pda-bound-user-interface-show-uplink-description'}"/>
+                <!-- <Trauma> - job listings -->
+                <pda:PdaSettingsButton Name = "ShowJobListingsButton"
+                                       Access="Public"
+                                       Visible="False"
+                                       Text="{Loc 'pda-bound-user-interface-show-job-listings-title'}"
+                                       Description="{Loc 'pda-bound-user-interface-show-job-listings-description'}"/>
+                <!-- </Trauma> - job listings -->
                 <pda:PdaSettingsButton Name="LockUplinkButton"
                                        Access="Public"
                                        Visible="False"

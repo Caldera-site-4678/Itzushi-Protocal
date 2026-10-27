@@ -6,7 +6,6 @@ using System.Text;
 using Content.Goobstation.Shared.Supermatter;
 using Content.Goobstation.Shared.Supermatter.Components;
 using Content.Goobstation.Shared.Supermatter.Systems;
-using Content.Server.AlertLevel;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Audio;
 using Content.Server.Chat.Systems;
@@ -14,8 +13,8 @@ using Content.Server.DoAfter;
 using Content.Server.Explosion.EntitySystems;
 using Content.Server.Lightning;
 using Content.Server.Popups;
-using Content.Server.Station.Systems;
 using Content.Shared.Administration.Logs;
+using Content.Shared.AlertLevel;
 using Content.Shared.Atmos;
 using Content.Shared.Chat;
 using Content.Shared.Database;
@@ -24,11 +23,14 @@ using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Kitchen.Components;
 using Content.Shared.Mobs.Components;
+using Content.Shared.Popups;
 using Content.Shared.Projectiles;
 using Content.Shared.Radiation.Systems;
+using Content.Shared.Station.Systems;
 using Content.Shared.Tag;
 using Content.Shared.Throwing;
-using Robust.Server.GameObjects;
+using Content.Shared.Tools;
+using Content.Shared.Tools.Systems;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
@@ -40,56 +42,37 @@ using Robust.Shared.Player;
 
 namespace Content.Goobstation.Server.Supermatter.Systems;
 
+// TODO: predict ashing examine etc
 public sealed partial class SupermatterSystem : SharedSupermatterSystem
 {
     [Dependency] private AtmosphereSystem _atmosphere = default!;
     [Dependency] private ChatSystem _chat = default!;
     [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private ExplosionSystem _explosion = default!;
-    [Dependency] private TransformSystem _xform = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private SharedTransformSystem _xform = default!;
     [Dependency] private AmbientSoundSystem _ambient = default!;
     [Dependency] private LightningSystem _lightning = default!;
     [Dependency] private AlertLevelSystem _alert = default!;
     [Dependency] private StationSystem _station = default!;
     [Dependency] private DoAfterSystem _doAfter = default!;
     [Dependency] private SharedRadiationSystem _radiation = default!;
-    [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private SharedToolSystem _tool = default!;
     [Dependency] private ISharedAdminLogManager _adminLog = default!;
+    [Dependency] private EntityQuery<ActorComponent> _actorQuery = default!;
+    [Dependency] private EntityQuery<MobStateComponent> _mobQuery = default!;
+    [Dependency] private EntityQuery<ProjectileComponent> _projQuery = default!;
+    [Dependency] private EntityQuery<SupermatterFoodComponent> _foodQuery = default!;
+    [Dependency] private EntityQuery<SupermatterImmuneComponent> _immuneQuery = default!;
 
+    private static readonly EntProtoId Ash = "Ash";
+    private static readonly ProtoId<AlertLevelPrototype> DeltaAlert = "DeltaDelam";
+    private static readonly ProtoId<AlertLevelPrototype> YellowAlert = "Yellow";
+    private static readonly ProtoId<ToolQualityPrototype> Slicing = "Slicing";
+
+    // TODO: die
     private DelamType _delamType = DelamType.Explosion;
-
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        SubscribeLocalEvent<SupermatterComponent, ComponentRemove>(OnComponentRemove);
-        SubscribeLocalEvent<SupermatterComponent, MapInitEvent>(OnMapInit);
-
-        SubscribeLocalEvent<SupermatterComponent, StartCollideEvent>(OnCollideEvent);
-        SubscribeLocalEvent<SupermatterComponent, InteractHandEvent>(OnHandInteract);
-        SubscribeLocalEvent<SupermatterComponent, InteractUsingEvent>(OnItemInteract);
-        SubscribeLocalEvent<SupermatterComponent, ExaminedEvent>(OnExamine);
-        SubscribeLocalEvent<SupermatterComponent, SupermatterDoAfterEvent>(OnGetSliver);
-    }
-
-    private void OnComponentRemove(EntityUid uid, SupermatterComponent component, ComponentRemove args)
-    {
-        // turn off any ambient if component is removed (ex. entity deleted)
-        _ambient.SetAmbience(uid, false);
-        component.AudioStream = _audio.Stop(component.AudioStream);
-    }
-
-    private void OnMapInit(EntityUid uid, SupermatterComponent component, MapInitEvent args)
-    {
-        // Set the Sound
-        _ambient.SetAmbience(uid, true);
-
-        //Add Air to the initialized SM in the Map so it doesnt delam on default
-        var mix = _atmosphere.GetContainingMixture(uid, true, true);
-        mix?.AdjustMoles(Gas.Oxygen, Atmospherics.OxygenMolesStandard);
-        mix?.AdjustMoles(Gas.Nitrogen, Atmospherics.NitrogenMolesStandard);
-    }
 
     public override void Update(float frameTime)
     {
@@ -158,6 +141,7 @@ public sealed partial class SupermatterSystem : SharedSupermatterSystem
         var gases = sm.GasStorage;
         var facts = sm.GasDataFields;
 
+        // TODO: use array storage and kill linq jesus christ
         //Lets get the proportions of the gasses in the mix for scaling stuff later
         //They range between 0 and 1
         gases = gases.ToDictionary(
@@ -380,7 +364,7 @@ public sealed partial class SupermatterSystem : SharedSupermatterSystem
         {
             var sb = new StringBuilder();
             var loc = string.Empty;
-            var alertLevel = "yellow";
+            var alertLevel = YellowAlert;
 
             switch (_delamType)
             {
@@ -391,23 +375,22 @@ public sealed partial class SupermatterSystem : SharedSupermatterSystem
 
                 case DelamType.Singulo:
                     loc = "supermatter-delam-overmass";
-                    alertLevel = "delta";
+                    alertLevel = DeltaAlert;
                     break;
 
                 case DelamType.Tesla:
                     loc = "supermatter-delam-tesla";
-                    alertLevel = "delta";
+                    alertLevel = DeltaAlert;
                     break;
 
                 case DelamType.Cascade:
                     loc = "supermatter-delam-cascade";
-                    alertLevel = "delta";
+                    alertLevel = DeltaAlert;
                     break;
             }
 
-            var station = _station.GetOwningStation(uid);
-            if (station != null)
-                _alert.SetLevel((EntityUid) station, alertLevel, true, true, true, false);
+            if (_station.GetOwningStation(uid) is { } station)
+                _alert.SetLevel(station, alertLevel, force: true);
 
             sb.AppendLine(Loc.GetString(loc));
             sb.AppendLine(Loc.GetString("supermatter-seconds-before-delam", ("seconds", sm.DelamTimer)));
@@ -528,7 +511,8 @@ public sealed partial class SupermatterSystem : SharedSupermatterSystem
                 break;
 
             case DelamType.Cascade:
-                Spawn(sm.SupermatterKudzuPrototypeId, xform.Coordinates);
+                // TODO: actually implement it with the portals and stuff bruh
+                Spawn(sm.TeslaPrototypeId, xform.Coordinates);
                 break;
         }
     }
@@ -553,96 +537,123 @@ public sealed partial class SupermatterSystem : SharedSupermatterSystem
         sm.SmSound = smSound;
     }
 
-    #endregion
+    private void Consume(Entity<SupermatterComponent> ent, EntityUid target)
+    {
+        var impact = _actorQuery.HasComp(target) ? LogImpact.Extreme : LogImpact.Medium;
+        _adminLog.Add(LogType.Supermatter, impact, $"Supermatter {ent.Owner:sm} has consumed {target:target}");
+        Spawn(Ash, Transform(target).Coordinates);
+        _audio.PlayPvs(ent.Comp.DustSound, ent);
+    }
 
+    #endregion
 
     #region Event Handlers
 
-    private void OnCollideEvent(EntityUid uid, SupermatterComponent sm, ref StartCollideEvent args)
+    [SubscribeLocalEvent]
+    private void OnComponentRemove(EntityUid uid, SupermatterComponent component, ComponentRemove args)
+    {
+        // turn off any ambient if component is removed (ex. entity deleted)
+        _ambient.SetAmbience(uid, false);
+        component.AudioStream = _audio.Stop(component.AudioStream);
+    }
+
+    [SubscribeLocalEvent]
+    private void OnMapInit(EntityUid uid, SupermatterComponent component, MapInitEvent args)
+    {
+        // Set the Sound
+        _ambient.SetAmbience(uid, true);
+
+        //Add Air to the initialized SM in the Map so it doesnt delam on default
+        var mix = _atmosphere.GetContainingMixture(uid, true, true);
+        mix?.AdjustMoles(Gas.Oxygen, Atmospherics.OxygenMolesStandard);
+        mix?.AdjustMoles(Gas.Nitrogen, Atmospherics.NitrogenMolesStandard);
+    }
+
+    [SubscribeLocalEvent]
+    private void OnStartCollide(Entity<SupermatterComponent> ent, ref StartCollideEvent args)
     {
         var target = args.OtherEntity;
 
         // ignore non-hard fixture collisions, or the wrong event target
-        if (args.OurEntity != uid || !args.OtherFixture.Hard)
+        if (args.OurEntity != ent.Owner || !args.OtherFixture.Hard)
             return;
 
         // Stop immune entities from activating the sm.
-        if (args.OtherBody.BodyType == BodyType.Static
-            || HasComp<SupermatterImmuneComponent>(target)
-            || _container.IsEntityInContainer(uid))
+        if (args.OtherBody.BodyType == BodyType.Static ||
+            _immuneQuery.HasComp(target) ||
+            _container.IsEntityInContainer(ent.Owner))
             return;
 
-        if (!sm.Activated)
+        var isMob = _mobQuery.HasComp(target);
+        if (!ent.Comp.Activated)
         {
             // Extra logging for supermatter
-            var activator = ToPrettyString(args.OtherEntity);
-            var isMob = HasComp<MobStateComponent>(args.OtherEntity);
             var impact = isMob ? LogImpact.Extreme : LogImpact.High;
 
             // Original log entry
             _adminLog.Add(LogType.Supermatter, impact,
-                $"{activator:actor} activated Supermatter {ToPrettyString(uid):subject}");
+                $"{target:actor} activated Supermatter {ent.Owner:subject}");
 
             // New admin alert
             _adminLog.Add(LogType.AdminMessage, LogImpact.Extreme,
-                $"SUPERMATTER ACTIVATED BY {activator} AT {Transform(uid).Coordinates}");
+                $"SUPERMATTER ACTIVATED BY {Name(target)} AT {Transform(ent).Coordinates}");
 
-            sm.Activated = true;
+            ent.Comp.Activated = true;
         }
 
-        if (TryComp<SupermatterFoodComponent>(target, out var food))
-            sm.Power += food.Energy;
-        else if (TryComp<ProjectileComponent>(target, out var projectile))
-            sm.Power += (float) projectile.Damage.GetTotal();
-        else
-            sm.Power++;
+        var added = 1f;
+        var isProjectile = _projQuery.TryComp(target, out var projectile);
+        if (_foodQuery.TryComp(target, out var food))
+            added = food.Energy;
+        else if (isProjectile)
+            added = (float) projectile!.Damage.GetTotal();
 
-        sm.MatterPower += HasComp<MobStateComponent>(target) ? 200 : 0;
+        ent.Comp.Power += added;
 
-        if (!HasComp<ProjectileComponent>(target))
-        {
-            var impact = HasComp<ActorComponent>(target) ? LogImpact.Extreme : LogImpact.Medium;
-            _adminLog.Add(LogType.Supermatter, LogImpact.Medium, $"Supermatter {ToPrettyString(uid)} has consumed {ToPrettyString(target)}");
-            Spawn("Ash", Transform(target).Coordinates);
-            _audio.PlayPvs(sm.DustSound, uid);
-        }
+        if (isMob)
+            ent.Comp.MatterPower += 200;
+
+        if (isProjectile)
+            Consume(ent, target);
 
         QueueDel(target);
     }
 
-    private void OnHandInteract(EntityUid uid, SupermatterComponent sm, ref InteractHandEvent args)
+    [SubscribeLocalEvent]
+    private void OnHandInteract(Entity<SupermatterComponent> ent, ref InteractHandEvent args)
     {
         var target = args.User;
 
-        if (HasComp<SupermatterImmuneComponent>(target))
+        if (_immuneQuery.HasComp(target))
             return;
 
-        if (!sm.Activated)
-            sm.Activated = true;
+        if (!ent.Comp.Activated)
+            ent.Comp.Activated = true;
 
-        sm.MatterPower += 200;
+        ent.Comp.MatterPower += 200;
 
-        _adminLog.Add(LogType.Supermatter, LogImpact.Extreme, $"Supermatter {ToPrettyString(uid)} has consumed {ToPrettyString(target)}");
-        Spawn("Ash", Transform(target).Coordinates);
-        _audio.PlayPvs(sm.DustSound, uid);
-        QueueDel(target);
+        Consume(ent, target);
     }
 
+    [SubscribeLocalEvent]
     private void OnItemInteract(EntityUid uid, SupermatterComponent sm, ref InteractUsingEvent args)
     {
-        if (!HasComp<SupermatterImmuneComponent>(args.User))
+        if (!_immuneQuery.HasComp(args.User))
             return;
 
         if (!sm.Activated)
             sm.Activated = true;
 
         if (sm.SliverRemoved)
+        {
+            _popup.PopupEntity("It already had a sliver removed...", uid, args.User);
+            return;
+        }
+
+        if (!_tool.HasQuality(args.Used, Slicing))
             return;
 
-        if (!HasComp<SharpComponent>(args.Used))
-            return;
-
-        var dae = new DoAfterArgs(EntityManager, args.User, 30f, new SupermatterDoAfterEvent(), uid)
+        var dae = new DoAfterArgs(EntityManager, args.User, 30f, new SupermatterDoAfterEvent(), uid, target: uid, used: args.Used)
         {
             BreakOnDamage = true,
             BreakOnHandChange = false,
@@ -655,30 +666,37 @@ public sealed partial class SupermatterSystem : SharedSupermatterSystem
         _doAfter.TryStartDoAfter(dae);
     }
 
-    private void OnGetSliver(EntityUid uid, SupermatterComponent sm, ref SupermatterDoAfterEvent args)
+    [SubscribeLocalEvent]
+    private void OnGetSliver(Entity<SupermatterComponent> ent, ref SupermatterDoAfterEvent args)
     {
         if (args.Cancelled)
             return;
 
+        ent.Comp.SliverRemoved = true;
+
         // your criminal actions will not go unnoticed
-        sm.Damage += sm.DelaminationPoint / 10;
-        sm.DamageArchived += sm.DelaminationPoint / 10;
+        ent.Comp.Damage += ent.Comp.DelaminationPoint / 10;
+        ent.Comp.DamageArchived += ent.Comp.DelaminationPoint / 10;
 
-        var integrity = GetIntegrity(sm).ToString("0.00");
-        SupermatterAnnouncement(uid, Loc.GetString("supermatter-announcement-cc-tamper", ("integrity", integrity)), true, "Central Command");
+        var integrity = GetIntegrity(ent.Comp).ToString("0.00");
+        SupermatterAnnouncement(ent, Loc.GetString("supermatter-announcement-cc-tamper", ("integrity", integrity)), true, "Central Command");
 
-        Spawn(sm.SliverPrototypeId, _transform.GetMapCoordinates(args.User));
+        Spawn(ent.Comp.SliverPrototypeId, _xform.GetMapCoordinates(args.User));
 
-        if (sm.DelamTimer > 30f)
-            sm.DelamTimer -= 10f;
+        if (args.Used is { } used && !_immuneQuery.HasComp(used))
+            Consume(ent, used);
+
+        if (ent.Comp.DelamTimer > 30f)
+            ent.Comp.DelamTimer -= 10f;
     }
 
-    private void OnExamine(EntityUid uid, SupermatterComponent sm, ref ExaminedEvent args)
+    [SubscribeLocalEvent]
+    private void OnExamine(Entity<SupermatterComponent> ent, ref ExaminedEvent args)
     {
         // get all close and personal to it
         if (args.IsInDetailsRange)
         {
-            args.PushMarkup(Loc.GetString("supermatter-examine-integrity", ("integrity", GetIntegrity(sm).ToString("0.00"))));
+            args.PushMarkup(Loc.GetString("supermatter-examine-integrity", ("integrity", GetIntegrity(ent.Comp).ToString("0.00"))));
         }
     }
 
