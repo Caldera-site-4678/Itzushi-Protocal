@@ -4,7 +4,7 @@
   id: MobKitsune
   name: Urist McKitsune
   components:
-  - type: HumanoidAppearance
+  - type: HumanoidProfile
     species: Kitsune
   - type: InteractionPopup
     successChance: 0.2
