@@ -1,3 +1,6 @@
+// <Trauma>
+using Content.Shared.Eye.Blinding.Systems;
+// </Trauma>
 using Content.Shared.Administration.Logs;
 using Content.Shared.Chemistry;
 using Content.Shared.Chemistry.Reaction;
@@ -22,11 +25,26 @@ public sealed partial class SharedEntityEffectsSystem : EntitySystem, IEntityEff
     public override void Initialize()
     {
         SubscribeLocalEvent<ReactiveComponent, ReactionEntityEvent>(OnReactive);
+        SubscribeLocalEvent<EntityEffectOnMapInitComponent, MapInitEvent>(OnMapInit);
     }
 
     private void OnReactive(Entity<ReactiveComponent> entity, ref ReactionEntityEvent args)
     {
         var scale = entity.Comp.ScaleOverride ?? args.ReagentQuantity.Quantity.Float(); // Trauma - use ScaleOverride
+
+        // <Trauma> Prevent's reagent effects if proper eye protection.
+        if (args.Method == ReactionMethod.Eyes)
+        {
+            var ev = new GetEyeProtectionEvent()
+            {
+                Target = entity.Owner
+            };
+            RaiseLocalEvent(entity.Owner, ev);
+
+            if (ev.Protection > TimeSpan.Zero)
+                return;
+        }
+        // </Trauma>
 
         if (args.Reagent.ReactiveEffects != null && entity.Comp.ReactiveGroups != null
             && AllowedToReact(entity)) // Trauma
@@ -59,6 +77,11 @@ public sealed partial class SharedEntityEffectsSystem : EntitySystem, IEntityEff
         }
     }
 
+    private void OnMapInit(Entity<EntityEffectOnMapInitComponent> entity, ref MapInitEvent args)
+    {
+        ApplyEffects(entity, entity.Comp.Effects);
+    }
+
     /// <inheritdoc cref="ApplyEffects(EntityUid,EntityEffect[],float,EntityUid?)"/>
     public void ApplyEffects(EntityUid target, EntityEffect[] effects, FixedPoint2 scale, EntityUid? user = null,
         bool predicted = true) // Trauma
@@ -68,7 +91,28 @@ public sealed partial class SharedEntityEffectsSystem : EntitySystem, IEntityEff
     }
 
     /// <summary>
-    /// Applies a list of entity effects to a target entity.
+    /// Applies a list of entity effects to a target entity. Returns true if at least one succeeded.
+    /// </summary>
+    /// <param name="target">Entity being targeted by the effects</param>
+    /// <param name="effects">Effects we're applying to the entity</param>
+    /// <param name="scale">Optional scale multiplier for the effects</param>
+    /// <param name="user">The entity causing the effect.</param>
+    public bool TryApplyEffects(EntityUid target, EntityEffect[] effects, float scale = 1f, EntityUid? user = null,
+        bool predicted = true) // Trauma
+    {
+        var success = false;
+        // do all effects, if conditions apply
+        foreach (var effect in effects)
+        {
+            success |= TryApplyEffect(target, effect, scale, user,
+                predicted: predicted); // Trauma
+        }
+
+        return success;
+    }
+
+    /// <summary>
+    /// Applies a list of entity effects to a target entity. Works using <see cref="TryApplyEffects"/>
     /// </summary>
     /// <param name="target">Entity being targeted by the effects</param>
     /// <param name="effects">Effects we're applying to the entity</param>
@@ -77,12 +121,9 @@ public sealed partial class SharedEntityEffectsSystem : EntitySystem, IEntityEff
     public void ApplyEffects(EntityUid target, EntityEffect[] effects, float scale = 1f, EntityUid? user = null,
         bool predicted = true) // Trauma
     {
-        // do all effects, if conditions apply
-        foreach (var effect in effects)
-        {
-            TryApplyEffect(target, effect, scale, user,
-                predicted: predicted); // Trauma
-        }
+
+        TryApplyEffects(target, effects, scale, user,
+            predicted: predicted); // Trauma
     }
 
     /// <summary>
@@ -104,7 +145,7 @@ public sealed partial class SharedEntityEffectsSystem : EntitySystem, IEntityEff
                 return false;
 
         // See if conditions apply
-        if (!_condition.TryConditions(target, effect.Conditions, user: user)) // Trauma - pass user
+        if (!_condition.TryConditions(target, effect.Conditions, sourceEnt: user)) // Trauma - pass user
             return false;
 
         ApplyEffect(target, effect, scale, user,

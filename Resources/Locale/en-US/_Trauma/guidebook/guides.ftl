@@ -9,8 +9,11 @@ guide-entry-tackle = Tackle
 guide-entry-forging = Forging
 guide-entry-fishing = Fishing
 guide-entry-circuits = Circuits
+guide-entry-chemicompiler = ChemiCompiler
 
 guide-entry-civilian = Civilian Jobs
+
+guide-entry-ranching = Ranching
 
 guide-entry-bingle = Bingle
 guide-entry-changelings = Changelings
@@ -21,8 +24,9 @@ guide-entry-devil-clauses = Devil Clauses
 guide-entry-insurgents = Insurgents
 guide-entry-morph = Morph
 guide-entry-shadow-demon = Shadow Demon
-guide-entry-slasher = Slasher
 guide-entry-slaughter-demon = Slaughter Demon
+guide-entry-progtot = Traitor Job Listings
+guide-entry-spies = Spies
 
 guide-entry-skills = Skills
 

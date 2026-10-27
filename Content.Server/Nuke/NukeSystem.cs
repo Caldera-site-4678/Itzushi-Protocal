@@ -1,8 +1,7 @@
 // <Trauma>
-using Content.Server.GameTicking;
-using Content.Server.GameTicking.Rules.Components;
+using Content.Shared.GameTicking;
+using Content.Shared.GameTicking.Rules.Components;
 // </Trauma>
-using Content.Server.AlertLevel;
 using Content.Server.Audio;
 using Content.Server.Chat.Systems;
 using Content.Server.Explosion.EntitySystems;
@@ -10,6 +9,7 @@ using Content.Server.Pinpointer;
 using Content.Server.Popups;
 using Content.Server.Station.Systems;
 using Content.Shared.Audio;
+using Content.Shared.AlertLevel;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Coordinates.Helpers;
 using Content.Shared.DoAfter;
@@ -31,6 +31,9 @@ namespace Content.Server.Nuke;
 
 public sealed partial class NukeSystem : EntitySystem
 {
+    // <Trauma>
+    [Dependency] private GameTicker _ticker = default!;
+    // </Trauma>
     [Dependency] private AlertLevelSystem _alertLevel = default!;
     [Dependency] private ChatSystem _chatSystem = default!;
     [Dependency] private ExplosionSystem _explosions = default!;
@@ -44,10 +47,9 @@ public sealed partial class NukeSystem : EntitySystem
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SharedMapSystem _map = default!;
-    [Dependency] private StationSystem _station = default!;
+    [Dependency] private ServerStationSystem _station = default!;
     [Dependency] private UserInterfaceSystem _ui = default!;
     [Dependency] private AppearanceSystem _appearance = default!;
-    [Dependency] private GameTicker _gameTicker = default!; // Goobstation
     [Dependency] private TurfSystem _turf = default!;
     [Dependency] private IGameTiming _timing = default!;
 
@@ -514,10 +516,8 @@ public sealed partial class NukeSystem : EntitySystem
         // The nuke may not be on a station, so it's more important to just
         // let people know that a nuclear bomb was armed in their vicinity instead.
         // Otherwise, you could set every station to whatever AlertLevelOnActivate is.
-        if (stationUid != null && !isOverride)
-            _alertLevel.SetLevel(stationUid.Value, component.AlertLevelOnActivate, true, true, true, true);
-        else if (stationUid != null && isOverride)
-            _alertLevel.SetLevel(stationUid.Value, component.AlertLevelOnOverride, true, true, true, true );
+        if (stationUid != null)
+            _alertLevel.SetLevel(stationUid.Value, isOverride ? component.AlertLevelOnOverride : component.AlertLevelOnActivate, true, true, true); // Trauma - try override alert level
 
         var pos = _transform.GetMapCoordinates(uid, xform: nukeXform);
         var x = (int) pos.X;
@@ -528,8 +528,9 @@ public sealed partial class NukeSystem : EntitySystem
         _selectedNukeSong = _audio.ResolveSound(component.ArmMusic);
 
         // Goobstation start
+        // TODO: make this an event jesus christ
         // If it's honkops, we use a different soundcollection!
-        var activeRules = _gameTicker.GetActiveGameRules();
+        var activeRules = _ticker.GetActiveGameRules();
 
         foreach (var rule in activeRules)
         {

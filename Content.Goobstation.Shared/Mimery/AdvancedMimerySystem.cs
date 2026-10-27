@@ -3,22 +3,16 @@
 using Content.Shared.Abilities.Mime;
 using Content.Shared.Actions.Events;
 using Content.Shared.Coordinates.Helpers;
-using Content.Shared.EntityEffects;
-using Content.Shared.Hands.EntitySystems;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Magic;
 using Content.Shared.Popups;
-using Robust.Shared.Map;
 
 namespace Content.Goobstation.Shared.Mimery;
 
 public sealed partial class AdvancedMimerySystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapMan = default!;
-    [Dependency] private SharedHandsSystem _hands = default!;
     [Dependency] private SharedMagicSystem _magic = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
-    [Dependency] private SharedEntityEffectsSystem _effects = default!;
 
     public override void Initialize()
     {
@@ -26,16 +20,7 @@ public sealed partial class AdvancedMimerySystem : EntitySystem
 
         SubscribeLocalEvent<MimePowersComponent, InvisibleBlockadeActionEvent>(OnInvisibleBlockade);
 
-        SubscribeLocalEvent<ActionRequiresEmptyHandComponent, ActionAttemptEvent>(OnHandAttempt);
-
         SubscribeLocalEvent<AdvancedMimeryActionComponent, ActionAttemptEvent>(OnMimeryAttempt);
-
-        SubscribeLocalEvent<EntityEffectOnActionComponent, ActionPerformedEvent>(OnEffects);
-    }
-
-    private void OnEffects(Entity<EntityEffectOnActionComponent> ent, ref ActionPerformedEvent args)
-    {
-        _effects.ApplyEffects(args.Performer, ent.Comp.Effects, ent.Comp.Scale, args.Performer);
     }
 
     private void OnMimeryAttempt(Entity<AdvancedMimeryActionComponent> ent, ref ActionAttemptEvent args)
@@ -44,20 +29,9 @@ public sealed partial class AdvancedMimerySystem : EntitySystem
             EnsureComp<MimePowersComponent>(args.User);
         else if (!powers.Enabled || powers.VowBroken)
         {
-            _popup.PopupClient(Loc.GetString(ent.Comp.VowBrokenMessage), args.User, args.User);
+            _popup.PopupEntity(Loc.GetString(ent.Comp.VowBrokenMessage), args.User, args.User);
             args.Cancelled = true;
         }
-    }
-
-    private void OnHandAttempt(Entity<ActionRequiresEmptyHandComponent> ent, ref ActionAttemptEvent args)
-    {
-        if (_hands.TryGetEmptyHand(args.User, out _))
-            return;
-
-        if (ent.Comp.PopupMessage is { } msg)
-            _popup.PopupClient(Loc.GetString(msg), args.User, args.User);
-
-        args.Cancelled = true;
     }
 
     private void OnInvisibleBlockade(Entity<MimePowersComponent> ent, ref InvisibleBlockadeActionEvent args)
@@ -69,7 +43,7 @@ public sealed partial class AdvancedMimerySystem : EntitySystem
         foreach (var position in _magic.GetInstantSpawnPositions(transform, new TargetInFront()))
         {
             args.Handled = true;
-            PredictedSpawnAttachedTo(ent.Comp.WallPrototype, position.SnapToGrid(EntityManager, _mapMan));
+            PredictedSpawnAttachedTo(ent.Comp.WallPrototype, position.SnapToGrid(EntityManager));
         }
 
         if (!args.Handled)
@@ -79,6 +53,6 @@ public sealed partial class AdvancedMimerySystem : EntitySystem
             ("mime", Identity.Entity(ent.Owner, EntityManager)));
         var messageOthers = Loc.GetString("mime-invisible-wall-popup-others",
             ("mime", Identity.Entity(ent.Owner, EntityManager)));
-        _popup.PopupPredicted(messageSelf, messageOthers, ent, ent);
+        _popup.PopupEntity(messageSelf, messageOthers, ent, ent);
     }
 }

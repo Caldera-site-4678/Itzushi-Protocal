@@ -69,8 +69,8 @@
     shape:
     - 0,0,6,1
   - type: ClothingSpeedModifier
-    walkModifier: 0.75
-    sprintModifier: 0.75
+    walkModifier: 0.85
+    sprintModifier: 0.85
   - type: HeldSpeedModifier
   - type: Gun
     projectileSpeed: 60
@@ -202,7 +202,7 @@
 
 - type: entity
   name: energy LMG
-  parent: [BaseItem, BaseSecurityContraband]
+  parent: [BaseItem, BaseSecurityContraband, BaseStockHit]
   id: WeaponLaserLMG
   description: A high-tech laser LMG, that draws power from specialized backpack.
   components:
@@ -254,3 +254,6 @@
   - type: Tag
     tags:
     - LaserLMG
+  - type: MeleeWeapon
+    angle: 0
+    wideAnimationRotation: -90

@@ -3,15 +3,14 @@
 using Content.Server.Cargo.Components;
 using Content.Server.Cargo.Systems;
 using Content.Server.Chat.Systems;
-using Content.Server.GameTicking;
-using Content.Server.GameTicking.Rules;
-using Content.Server.Station.Components;
-using Content.Server.Station.Systems;
+using Content.Shared.GameTicking;
+using Content.Shared.GameTicking.Rules;
 using Content.Shared.Cargo;
 using Content.Shared.Cargo.Components;
 using Content.Shared.Dataset;
 using Content.Shared.GameTicking.Components;
 using Content.Shared.Station.Components;
+using Content.Shared.Station.Systems;
 using Robust.Shared.Random;
 
 namespace Content.Goobstation.Server.Pirates.GameTicking.Rules;
@@ -20,50 +19,42 @@ public sealed partial class PendingPirateRuleSystem : GameRuleSystem<PendingPira
 {
     [Dependency] private ChatSystem _chat = default!;
     [Dependency] private IRobustRandom _rand = default!;
-    [Dependency] private IPrototypeManager _prot = default!;
-    [Dependency] private GameTicker _gt = default!;
+    [Dependency] private GameTicker _ticker = default!;
     [Dependency] private StationSystem _station = default!;
     [Dependency] private CargoSystem _cargo = default!;
 
     private static readonly EntProtoId PirateSpawnRule = "PiratesSpawn";
 
-    public override void Update(float frameTime)
+    protected override void ActiveTick(EntityUid uid, PendingPirateRuleComponent pending, GameRuleComponent rule, float frameTime)
     {
-        base.Update(frameTime);
+        pending.PirateSpawnTimer += frameTime;
+        if (pending.PirateSpawnTimer < pending.PirateSpawnTime)
+            return;
 
-        var eqe = QueryActiveRules();
-        while (eqe.MoveNext(out var uid, out _, out var pending, out var gamerule))
+        // remove spawned order.
+        if (!AllEntityQuery<BecomesStationComponent, StationMemberComponent>().MoveNext(out var eqData, out _, out _))
         {
-            pending.PirateSpawnTimer += frameTime;
-            if (pending.PirateSpawnTimer >= pending.PirateSpawnTime)
-            {
-                // remove spawned order.
-                if (!AllEntityQuery<BecomesStationComponent, StationMemberComponent>().MoveNext(out var eqData, out _, out _))
-                {
-                    // No station found, end the rule
-                    _gt.EndGameRule(uid, gamerule);
-                    break;
-                }
-
-                var station = _station.GetOwningStation(eqData);
-                if (station == null || !TryComp<StationBankAccountComponent>(station, out var bank))
-                {
-                    // Invalid station or no bank account, end the rule
-                    _gt.EndGameRule(uid, gamerule);
-                    break;
-                }
-
-                if (_cargo.TryGetOrderDatabase(station, out var cargoDb) && pending.Order != null)
-                {
-                    _cargo.RemoveOrder(station.Value, bank.PrimaryAccount, pending.Order.OrderId, cargoDb);
-                }
-
-                SendAnnouncement((uid, pending), AnnouncementType.Arrival);
-                _gt.StartGameRule(PirateSpawnRule);
-                _gt.EndGameRule(uid, gamerule);
-                break;
-            }
+            // No station found, end the rule
+            _ticker.EndGameRule((uid, rule));
+            return;
         }
+
+        var station = _station.GetOwningStation(eqData);
+        if (station == null || !TryComp<StationBankAccountComponent>(station, out var bank))
+        {
+            // Invalid station or no bank account, end the rule
+            _ticker.EndGameRule((uid, rule));
+            return;
+        }
+
+        if (_cargo.TryGetOrderDatabase(station, out var cargoDb) && pending.Order != null)
+        {
+            _cargo.RemoveOrder(station.Value, bank.PrimaryAccount, pending.Order.OrderId, cargoDb);
+        }
+
+        SendAnnouncement((uid, pending), AnnouncementType.Arrival);
+        _ticker.StartGameRule(PirateSpawnRule);
+        _ticker.EndGameRule((uid, rule));
     }
 
     protected override void Started(EntityUid uid, PendingPirateRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
@@ -112,7 +103,7 @@ public sealed partial class PendingPirateRuleSystem : GameRuleSystem<PendingPira
         var announcer = pprule.Comp.LocAnnouncer;
 
         if (pprule.Comp.LocAnnouncers != null)
-            announcer = _rand.Pick(_prot.Index<DatasetPrototype>(pprule.Comp.LocAnnouncers).Values);
+            announcer = _rand.Pick(ProtoMan.Index<DatasetPrototype>(pprule.Comp.LocAnnouncers).Values);
 
         var type = atype.ToString().ToLower();
         var announcement = Loc.GetString($"pirates-announcement-{announcer}-{type}");
@@ -122,9 +113,6 @@ public sealed partial class PendingPirateRuleSystem : GameRuleSystem<PendingPira
 
         _chat.DispatchGlobalAnnouncement(announcement, announcer, colorOverride: Color.Orange);
     }
-
-    public EntityQueryEnumerator<ActiveGameRuleComponent, PendingPirateRuleComponent, GameRuleComponent> GetPendingRules()
-        => QueryActiveRules();
 
     public enum AnnouncementType
     {

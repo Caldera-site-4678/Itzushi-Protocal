@@ -2,7 +2,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
-using Content.Client.Administration.UI.CustomControls;
+using Content.Client.Stylesheets;
+using Content.Client.UserInterface.Controls;
 using Content.Shared.Administration;
 using Content.Shared.CCVar;
 using Content.Shared.Database;
@@ -152,6 +153,7 @@ public sealed partial class BanPanel : DefaultWindow
         TypeOption.AddItem(Loc.GetString("ban-panel-role"), (int) Types.Role);
 
         ReasonTextEdit.Placeholder = new Rope.Leaf(Loc.GetString("ban-panel-reason"));
+        WebhookReason.Placeholder = new Rope.Leaf("Public reason to show in webhooks, defaults to the true reason above"); // Trauma
 
         var departmentJobs = _protoMan.EnumeratePrototypes<DepartmentPrototype>()
                                       .OrderBy(x => x.Weight);
@@ -218,7 +220,7 @@ public sealed partial class BanPanel : DefaultWindow
             }
         });
         RolesContainer.AddChild(outerContainer);
-        RolesContainer.AddChild(new HSeparator());
+        RolesContainer.AddChild(new Separator { StyleClasses = { StyleClass.LowDivider } });
     }
 
     private Button CreateRoleGroupHeader(string groupName, BoxContainer header, Color color, GridContainer innerContainer)
@@ -647,6 +649,10 @@ public sealed partial class BanPanel : DefaultWindow
             antags,
             erase
         );
+        // <Trauma>
+        var webhookReason = Rope.Collapse(WebhookReason.TextRope);
+        ban.WebhookReason = string.IsNullOrEmpty(webhookReason) ? null : webhookReason;
+        // </Trauma>
 
         BanSubmitted?.Invoke(ban);
     }

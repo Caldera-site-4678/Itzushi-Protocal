@@ -89,7 +89,8 @@
       - id: ClothingShoesLeather
       - id: ClothingShoesBootsSalvage
       - id: ClothingShoesBootsWork
-      - id: ClothingShoesTourist
+      - id: ClothingShoesSandalsBlack
+      - id: ClothingShoesSandalsBrown
       - id: ClothingUniformJumpsuitLoungewear
       - id: ClothingHeadHatCowboyRed
       - id: ClothingShoesSkates #GoobStation
@@ -166,7 +167,7 @@
         - id: ClothingNeckAutismPin
     # Rare Group
     - !type:GroupSelector
-      weight: 2
+      weight: 15
       children:
       # <Trauma>
       - id: PonderingOrb

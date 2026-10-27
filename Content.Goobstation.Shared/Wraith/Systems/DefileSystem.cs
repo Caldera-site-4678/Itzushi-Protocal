@@ -44,7 +44,7 @@ public sealed partial class DefileSystem : EntitySystem
             if (!TryInjectReagents(args.Target, ent))
                 return;
 
-            _popup.PopupClient(Loc.GetString("wraith-poison-success", ("target", ent.Owner)), ent.Owner, ent.Owner);
+            _popup.PopupEntity(Loc.GetString("wraith-poison-success", ("target", ent.Owner)), ent.Owner, ent.Owner);
             args.Handled = true;
         }
     }
@@ -60,7 +60,6 @@ public sealed partial class DefileSystem : EntitySystem
 
         _ui.CloseUi(ent.Owner, ListViewSelectorUiKey.Key);
     }
-
 
     #region Helper
     private bool TryInjectReagents(EntityUid target, Entity<DefileComponent> ent)

@@ -24,9 +24,6 @@
     - NONE
   - type: DisarmMalus
     malus: 0
-  - type: Tag
-    tags:
-    - Nullrod
 
 - type: entity
   name: Null Rod
@@ -106,7 +103,6 @@
     flavorKind: station-event-random-sentience-flavor-inanimate
     weight: 0.50
   - type: MedievalAccent
-  - type: Sharp
   - type: Execution # OFF WITH HIS HEAD!!
     doAfterDuration: 3.0
   - type: Scalpel
@@ -116,9 +112,10 @@
   - type: Tag
     tags:
     - HolyClaymore
+  - type: Sharp
   - type: Tool
     qualities:
-      - Slicing
+    - Slicing
     useSound:
       path: /Audio/Items/Culinary/chop.ogg
   - type: Parry
@@ -260,6 +257,9 @@
       components:
       - BibleUser
   - type: Sharp
+  - type: Tool
+    qualities:
+    - Slicing
   - type: Execution
     doAfterDuration: 4.0
   - type: Scalpel # Why? Because it's funny. That's why.
@@ -359,19 +359,12 @@
     passiveBlockFraction: 0.15
     activeBlockFraction: 1
     passiveBlockModifier:
-      coefficients:
-        Blunt: 1
-        Slash: 1
-        Piercing: 1
-        Ballistic: 1
-        Heat: 1
-    activeBlockModifier:
-      coefficients:
-        Blunt: 1
-        Slash: 1
-        Piercing: 1
-        Ballistic: 1
-        Heat: 1
+      flatReductions:
+        Blunt: 15
+        Slash: 10
+        Piercing: 10
+        Ballistic: 5
+        Heat: 10
   - type: Tag
     tags:
     - Bulwark
@@ -468,44 +461,32 @@
   - type: MultipleTool
     statusShowBehavior: true
     entries:
-    - behavior: Screwing
-      sprite:
+    - behavior: [ Screwing ]
+      sprite: &hand_sprite
         sprite: _ShitChap/Objects/Weapons/Nullrod/uristhand.rsi
         state: icon
       useSound:
         path: /Audio/Items/drill_use.ogg
-      changeSound:
+      changeSound: &drill_sound
         path: /Audio/Items/change_drill.ogg
-    - behavior: Prying
-      sprite:
-        sprite: _ShitChap/Objects/Weapons/Nullrod/uristhand.rsi
-        state: icon
+    - behavior: [ Prying ]
+      sprite: *hand_sprite
       useSound:
         path: /Audio/Items/jaws_pry.ogg
-      changeSound:
-        path: /Audio/Items/change_drill.ogg
-    - behavior: Anchoring
-      sprite:
-        sprite: _ShitChap/Objects/Weapons/Nullrod/uristhand.rsi
-        state: icon
+      changeSound: *drill_sound
+    - behavior: [ Anchoring ]
+      sprite: *hand_sprite
       useSound:
         path: /Audio/Items/ratchet.ogg
-      changeSound:
-        path: /Audio/Items/change_drill.ogg
-    - behavior: Cutting
-      sprite:
-        sprite: _ShitChap/Objects/Weapons/Nullrod/uristhand.rsi
-        state: icon
+      changeSound: *drill_sound
+    - behavior: [ Cutting ]
+      sprite: *hand_sprite
       useSound:
         path: /Audio/Items/jaws_cut.ogg
-      changeSound:
-        path: /Audio/Items/change_drill.ogg
-    - behavior: Pulsing
-      sprite:
-        sprite: _ShitChap/Objects/Weapons/Nullrod/uristhand.rsi
-        state: icon
-      changeSound:
-        path: /Audio/Items/change_drill.ogg
+      changeSound: *drill_sound
+    - behavior: [ Pulsing ]
+      sprite: *hand_sprite
+      changeSound: *drill_sound
   - type: MeleeWeapon
     canWideSwing: false
     attackRate: 0.9
@@ -553,6 +534,14 @@
     UntrainedUseString: nullrod-chainsaw-untrained-usage-popup
   - type: Unremoveable
   - type: Sharp
+  - type: Tool
+    qualities:
+    - Slicing
+    - Sawing
+    useSound: &chainsaw_rev_sound
+      path: /Audio/Weapons/chainsaw_rev.ogg
+      params:
+        volume: -3
   - type: Sprite
     sprite: _ShitChap/Objects/Weapons/Nullrod/divinechainsaw.rsi
     state: icon
@@ -569,23 +558,19 @@
         Slash: 3
         Structural: 20
         Holy: 3
-    soundHit:
-      path: /Audio/Weapons/chainsaw_rev.ogg
-      params:
-        volume: -3
+    soundHit: *chainsaw_rev_sound
   - type: Item
     size: Ginormous
     sprite: _ShitChap/Objects/Weapons/Nullrod/divinechainsaw.rsi
-  - type: BoneSaw # Shitmed
+  - type: BoneSaw
     speed: 0.65
-  - type: SurgeryTool # Shitmed
+  - type: SurgeryTool
     startSound:
       path: /Audio/Weapons/chainsaw_pull.ogg
-    endSound:
-      path: /Audio/Weapons/chainsaw_rev.ogg
+    endSound: *chainsaw_rev_sound
   - type: Tag
     tags:
-      - HolyChainsaw
+    - HolyChainsaw
 
 # Casul & Jackal
 - type: entity
@@ -760,6 +745,9 @@
         restitution: 0.3
         friction: 0.2
   - type: Sharp
+  - type: Tool
+    qualities:
+    - Slicing
   - type: MeleeChemicalInjector
     transferAmount: 1
     solution: melee

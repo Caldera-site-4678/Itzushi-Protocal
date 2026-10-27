@@ -21,24 +21,17 @@ public sealed partial class TrailSystem : EntitySystem
     [Dependency] private IOverlayManager _overlay = default!;
     [Dependency] private IEyeManager _eye = default!;
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private IPrototypeManager _protoMan = default!;
     [Dependency] private TransformSystem _transform = default!;
-
-    private EntityQuery<TransformComponent> _xformQuery;
-    private EntityQuery<FrozenComponent> _frozenQuery;
-    private EntityQuery<PhysicsComponent> _physicsQuery;
+    [Dependency] private EntityQuery<FrozenComponent> _frozenQuery;
+    [Dependency] private EntityQuery<PhysicsComponent> _physicsQuery;
 
     public override void Initialize()
     {
         base.Initialize();
-        _overlay.AddOverlay(new TrailOverlay(EntityManager, _protoMan, _timing));
+        _overlay.AddOverlay(new TrailOverlay(EntityManager, ProtoMan, _timing));
 
         SubscribeLocalEvent<TrailComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<TrailComponent, ComponentStartup>(OnStartup);
-
-        _xformQuery = GetEntityQuery<TransformComponent>();
-        _frozenQuery = GetEntityQuery<FrozenComponent>();
-        _physicsQuery = GetEntityQuery<PhysicsComponent>();
 
         UpdatesOutsidePrediction = true;
     }
@@ -127,7 +120,7 @@ public sealed partial class TrailSystem : EntitySystem
             if (trail.Lifetime <= 0f)
                 continue;
 
-            var (position, rotation) = _transform.GetWorldPositionRotation(xform, _xformQuery);
+            var (position, rotation) = _transform.GetWorldPositionRotation(xform);
             trail.LastCoords = new MapCoordinates(position, xform.MapID);
 
             if (_frozenQuery.HasComp(uid))
@@ -226,7 +219,7 @@ public sealed partial class TrailSystem : EntitySystem
 
         if (trail.SpawnEntityPosition != null && Exists(trail.SpawnEntityPosition.Value))
         {
-            position = _transform.GetWorldPosition(trail.SpawnEntityPosition.Value, _xformQuery);
+            position = _transform.GetWorldPosition(trail.SpawnEntityPosition.Value);
             if (trail.SpawnPosition != null)
                 position += trail.SpawnPosition.Value;
         }

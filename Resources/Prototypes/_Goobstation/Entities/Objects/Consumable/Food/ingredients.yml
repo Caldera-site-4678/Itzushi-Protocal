@@ -4,15 +4,15 @@
   parent: BaseFoodCondimentPacket
   id: FoodCondimentPacketProtein
   name: protein powder packet
-  description: Contains 10u of powdered protein. Mix with 20u of water
+  description: Contains 8.333333mL of powdered protein. Mix with 8.333333mL of water.
   components:
   - type: Solution
     solution:
       reagents:
       - ReagentId: Protein
-        Quantity: 9
+        Quantity: 0.9
       - ReagentId: Fentanyl
-        Quantity: 1
+        Quantity: 0.1
   - type: Icon
     state: packet-greygoo
   - type: Appearance
@@ -23,18 +23,18 @@
     price: 15
 
 - type: entity
-  name: block of freedom cheese
-  parent: FoodBakingBase
+  parent: [ FoodBakingBase, BaseSlicingRefinable ]
   id: FoodFreedomCheeseBlock
+  name: block of freedom cheese
   description: A solid block of artery-clogging cheese based on an questionable old world recipe. Slice it for your buddies.. or just eat the entire block for yourself, you weirdo.
   components:
   - type: FlavorProfile
     flavors:
-      - creamy
-      - cheesy
+    - creamy
+    - cheesy
     ignoreReagents:
-      - Nutriment
-      - GastroToxin
+    - Nutriment
+    - GastroToxin
   - type: Sprite
     sprite: _Goobstation/Objects/Consumable/Food/freedom_cheese.rsi
     state: cheese_block
@@ -46,24 +46,24 @@
         Quantity: 16
       - ReagentId: GastroToxin
         Quantity: 4
-  - type: SliceableFood
-    count: 4
-    slice: FoodFreedomCheeseSlice
-
+  - type: ToolRefinable
+    refineResult:
+    - id: FoodFreedomCheeseSlice
+      amount: 4
 
 - type: entity
-  name: freedom cheese slice
   parent: FoodBakingBase
   id: FoodFreedomCheeseSlice
+  name: freedom cheese slice
   description: Highly questionable amalgamation of cheddar, fillers and the spirit of freedom. NanoTrasen's healthcare does not cover incidents regarding the consumption of this item.
   components:
   - type: FlavorProfile
     flavors:
-      - creamy
-      - cheesy
+    - creamy
+    - cheesy
     ignoreReagents:
-      - Nutriment
-      - GastroToxin
+    - Nutriment
+    - GastroToxin
   - type: Sprite
     sprite: _Goobstation/Objects/Consumable/Food/freedom_cheese.rsi
     state: cheese_slice

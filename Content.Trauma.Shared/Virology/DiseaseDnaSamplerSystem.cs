@@ -89,7 +89,7 @@ public sealed partial class DiseaseDnaSamplerSystem : EntitySystem
         var targetIdent = Identity.Entity(target, EntityManager);
         var userIdent = Identity.Entity(user, EntityManager);
         _popup.PopupEntity(Loc.GetString("disease-dna-sampler-popup-target", ("user", userIdent)), target, target, PopupType.LargeCaution);
-        _popup.PopupClient(Loc.GetString("disease-dna-sampler-popup-user", ("target", targetIdent)), target, user, PopupType.Medium);
+        _popup.PopupEntity(Loc.GetString("disease-dna-sampler-popup-user", ("target", targetIdent)), target, user, PopupType.Medium);
     }
 
     public void SampleDna(Entity<DiseaseDnaSamplerComponent> ent, EntityUid target, EntityUid user)
@@ -133,7 +133,7 @@ public sealed partial class DiseaseDnaSamplerSystem : EntitySystem
             return;
 
         // spawn and set up the disease's dna target
-        var disease = EntityManager.PredictedSpawn(proto);
+        var disease = PredictedSpawn(proto);
         _target.AddTargetDnas(disease, ent.Comp.TargetDnas);
         Clear(ent);
 

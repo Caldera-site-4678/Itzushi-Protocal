@@ -10,7 +10,6 @@
     layers:
     - state: base
   - type: Anchorable
-  - type: Rotatable
   - type: Construction
     graph: LogicGate
     node: empty
@@ -25,6 +24,8 @@
     receiveFrequencyId: BasicDevice
   - type: WirelessNetworkConnection
     range: 200
+  - type: SoundOnOverload
+  - type: SpawnOnOverload
 
 - type: entity
   parent: BaseLogicItem

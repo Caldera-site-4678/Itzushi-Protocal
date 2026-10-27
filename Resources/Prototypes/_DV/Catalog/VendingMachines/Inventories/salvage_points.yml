@@ -13,7 +13,7 @@
     cost: 150
   - id: Soap
     cost: 200
-  # TODO: laser pointer 300, toy facehugger 300
+  # TODO: laser pointer 300
   # TODO: stabilizing serum for 400
   - id: BoxMarkerBeacons
     cost: 300
@@ -50,13 +50,13 @@
     cost: 750
   - id: WeaponProtoKineticAccelerator
     cost: 750
-  - id: SpaceCash5000
-    cost: 750
   - id: SurvivalMedipen
     cost: 800
   - id: PKAUpgradeRange
     cost: 1000
   - id: PKAUpgradeFireRate
+    cost: 1000
+  - id: PKAUpgradeSpace
     cost: 1000
   - id: ShelterCapsule
     cost: 1000
@@ -64,6 +64,8 @@
     cost: 1000
   - id: WeaponCrusherDagger
     cost: 1050
+  - id: WeaponLauncherFulton
+    cost: 1100
   - id: AdvancedMineralScanner
     cost: 1100
   - id: PKAUpgradeDamage
@@ -112,7 +114,5 @@
     cost: 3500
   - id: MiningDrillDiamond
     cost: 4000 #Mostly for flexing
-  - id: CrateCargoClarkeAssembly
-    cost: 12500 #TODO: Make modules real
   # TODO: luxury elite bar capsule for 10k
   # TODO: mining drone stuff

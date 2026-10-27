@@ -17,13 +17,13 @@ public sealed partial class EvolveComponent : Component
     /// The corpses required from AbsorbCorpse in order to evolve
     /// </summary>
     [DataField]
-    public int CorpsesRequired = 3;
+    public int CorpsesRequired = 6;
 
-    [ViewVariables]
+    [DataField]
     public EntityUid? ActionEnt;
 
-    [ViewVariables]
-    public EntProtoId ActionId = "ActionEvolve";
+    [DataField]
+    public EntProtoId ActionId = "ActionWraithEvolve";
 }
 
 /// <summary>

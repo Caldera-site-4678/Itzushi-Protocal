@@ -5,10 +5,12 @@ using Content.Goobstation.Common.CCVar;
 using Content.Goobstation.Common.Conversion;
 using Content.Shared.Actions;
 using Content.Shared.Chat;
+using Content.Shared.EntityEffects;
 using Content.Shared.FixedPoint;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
 using Content.Shared.Objectives.Systems;
+using Content.Shared.Roles;
 using Content.Shared.StatusEffectNew;
 using Content.Shared.Store;
 using Content.Shared.Store.Components;
@@ -17,6 +19,7 @@ using Content.Trauma.Shared.Heretic.Components;
 using Content.Trauma.Shared.Heretic.Components.Ghoul;
 using Content.Trauma.Shared.Heretic.Events;
 using Content.Trauma.Shared.Heretic.Prototypes;
+using Content.Trauma.Shared.Roles;
 using Robust.Shared.Configuration;
 using Robust.Shared.Containers;
 using Robust.Shared.Player;
@@ -28,17 +31,18 @@ namespace Content.Trauma.Shared.Heretic.Systems;
 public abstract partial class SharedHereticSystem : EntitySystem
 {
     [Dependency] private IConfigurationManager _cfg = default!;
-    [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private ISerializationManager _serialization = default!;
     [Dependency] private INetManager _net = default!;
-    [Dependency] private IGameTiming _timing = default!;
 
+    [Dependency] protected IGameTiming Timing = default!;
     [Dependency] protected ISharedChatManager ChatMan = default!;
     [Dependency] protected ISharedPlayerManager PlayerMan = default!;
     [Dependency] protected StatusEffectsSystem Status = default!;
     [Dependency] protected SharedContainerSystem Container = default!;
 
+    [Dependency] private SharedRoleSystem _role = default!;
     [Dependency] private ActionContainerSystem _actionContainer = default!;
+    [Dependency] private SharedEntityEffectsSystem _effects = default!;
     [Dependency] private SharedMindSystem _mind = default!;
     [Dependency] private TagSystem _tag = default!;
     [Dependency] private SharedObjectivesSystem _objectives = default!;
@@ -50,12 +54,12 @@ public abstract partial class SharedHereticSystem : EntitySystem
     public static readonly ProtoId<CurrencyPrototype> Currency = "KnowledgePoint";
     public static readonly ProtoId<CurrencyPrototype> SideCurrency = "SideKnowledgePoint";
 
-    public static readonly Dictionary<string, FixedPoint2> OneKnowledgePoint = new()
+    public static readonly Dictionary<ProtoId<CurrencyPrototype>, FixedPoint2> OneKnowledgePoint = new()
     {
         {Currency, 1},
     };
 
-    public static readonly Dictionary<string, FixedPoint2> OneKnowledgeOneSidePoint = new()
+    public static readonly Dictionary<ProtoId<CurrencyPrototype>, FixedPoint2> OneKnowledgeOneSidePoint = new()
     {
         {Currency, 1},
         {SideCurrency, 1},
@@ -85,17 +89,25 @@ public abstract partial class SharedHereticSystem : EntitySystem
         if (ent.Comp.CurrentPath is not { } path || !TryComp(ent, out MindComponent? mind))
             return;
 
-        if (ent.Comp.PassiveLevel >= args.Level)
+        var oldLevel = ent.Comp.PassiveLevel;
+
+        if (oldLevel >= args.Level)
             return;
+
+        // Set passive level before adding knowledge so that store ui updates properly
+        var couldBreak = ent.Comp.CanBreakBlade;
+        var hadAura = ent.Comp.ShouldShowAura;
+        ent.Comp.PassiveLevel = args.Level;
+        Dirty(ent);
 
         PlayerMan.TryGetSessionById(mind.UserId, out var session);
 
-        for (var i = ent.Comp.PassiveLevel + 1; i <= args.Level; i++)
+        for (var i = oldLevel + 1; i <= args.Level; i++)
         {
             var pathStr = path.ToString();
             var knowledgeId = $"{pathStr}Passive{i}";
 
-            if (_proto.HasIndex<HereticKnowledgePrototype>(knowledgeId))
+            if (ProtoMan.HasIndex<HereticKnowledgePrototype>(knowledgeId))
             {
                 TryAddKnowledge((ent, mind, ent.Comp), knowledgeId);
                 var passiveDesc = Loc.GetString($"knowledge-path-{pathStr.ToLower()}-passive-desc-{i}");
@@ -115,15 +127,11 @@ public abstract partial class SharedHereticSystem : EntitySystem
                 Log.Error($"Missing heretic passive knowledge prototype: {knowledgeId}");
         }
 
-        var couldBreak = ent.Comp.CanBreakBlade;
-        var hadAura = ent.Comp.ShouldShowAura;
-        ent.Comp.PassiveLevel = args.Level;
-        Dirty(ent);
-        var canBreak = ent.Comp.CanBreakBlade;
-        var showAura = ent.Comp.ShouldShowAura;
-
         if (session == null)
             return;
+
+        var canBreak = ent.Comp.CanBreakBlade;
+        var showAura = ent.Comp.ShouldShowAura;
 
         if (!canBreak && couldBreak)
             SendNoBreakBladeMessage(ent.Comp, session);
@@ -206,16 +214,15 @@ public abstract partial class SharedHereticSystem : EntitySystem
     }
 
     public void UpdateKnowledge(EntityUid uid,
-        Dictionary<string, FixedPoint2> knowledge,
+        Dictionary<ProtoId<CurrencyPrototype>, FixedPoint2> knowledge,
         bool showText = true,
         bool playSound = true,
         MindContainerComponent? mindContainer = null)
     {
-        if (!_mind.TryGetMind(uid, out var mindId, out var mind, mindContainer) ||
-            !TryComp(mindId, out StoreComponent? store) || !TryComp(mindId, out HereticComponent? heretic))
+        if (!_mind.TryGetMind(uid, out var mindId, out var mind, mindContainer) || !_hereticQuery.TryComp(mindId, out var heretic))
             return;
 
-        UpdateMindKnowledge((mindId, heretic, store, mind), uid, knowledge, showText, playSound);
+        UpdateMindKnowledge((mindId, heretic, mind), uid, knowledge, showText, playSound);
     }
 
     public bool ObjectivesAllowAscension(Entity<HereticComponent> ent)
@@ -232,7 +239,7 @@ public abstract partial class SharedHereticSystem : EntitySystem
 
         body ??= ent.Comp1.OwnedEntity;
 
-        var data = _proto.Index(id);
+        var data = ProtoMan.Index(id);
 
         if (data.MindEvent is { } hereticEv)
         {
@@ -244,6 +251,11 @@ public abstract partial class SharedHereticSystem : EntitySystem
             var ev = _serialization.CreateCopy(data.Event, notNullableOverride: true);
             RaiseKnowledgeEvent(body.Value, ev, false);
             ent.Comp2.KnowledgeEvents.Add(ev);
+        }
+
+        if (data.Effects is { } effects && body != null)
+        {
+            _effects.ApplyEffects(body.Value, effects);
         }
 
         if (data.ActionPrototypes is { Count: > 0 })
@@ -283,8 +295,8 @@ public abstract partial class SharedHereticSystem : EntitySystem
             }
         }
 
-        if (body != null)
-            _store.UpdateUserInterface(body, ent.Owner);
+        if (body != null && GetHereticStore(ent) is { } store)
+            _store.UpdateUserInterface(body, store, store);
 
         Dirty(ent, ent.Comp2);
         return true;
@@ -297,7 +309,7 @@ public abstract partial class SharedHereticSystem : EntitySystem
 
     public void UpdateHereticAura(EntityUid uid)
     {
-        if (_timing.ApplyingState || TerminatingOrDeleted(uid))
+        if (Timing.ApplyingState || TerminatingOrDeleted(uid))
             return;
 
         if (!TryGetHereticComponent(uid, out var heretic, out _) || !heretic.ShouldShowAura)
@@ -317,9 +329,9 @@ public abstract partial class SharedHereticSystem : EntitySystem
         EnsureComp<HereticAuraComponent>(uid);
     }
 
-    public virtual void UpdateMindKnowledge(Entity<HereticComponent, StoreComponent, MindComponent> ent,
+    public virtual void UpdateMindKnowledge(Entity<HereticComponent?, MindComponent?> ent,
         EntityUid? user,
-        Dictionary<string, FixedPoint2> knowledge,
+        Dictionary<ProtoId<CurrencyPrototype>, FixedPoint2> knowledge,
         bool showText = true,
         bool playSound = true)
     {
@@ -334,6 +346,7 @@ public abstract partial class SharedHereticSystem : EntitySystem
     }
 
     public virtual void UpdateHereticCostModifiers(Entity<HereticComponent?> ent,
+        Entity<StoreComponent>? store = null,
         ProtoId<StoreCategoryPrototype>? category = null,
         ListingDataWithCostModifiers? except = null)
     {
@@ -353,6 +366,7 @@ public abstract partial class SharedHereticSystem : EntitySystem
         foreach (var objId in ent.Comp1.AllObjectives)
         {
             if (!_mind.TryFindObjective(mindEntity.AsNullable(), objId, out var objective) ||
+
                 _objectives.IsCompleted(objective.Value, mindEntity))
                 continue;
 
@@ -403,5 +417,14 @@ public abstract partial class SharedHereticSystem : EntitySystem
             false,
             session.Channel,
             Color.Red);
+    }
+
+    public Entity<StoreComponent>? GetHereticStore(EntityUid mind)
+    {
+        if (!_role.MindHasRole<HereticRoleComponent>(mind, out var role) ||
+            !TryComp(role.Value, out StoreComponent? store))
+            return null;
+
+        return (role.Value, store);
     }
 }

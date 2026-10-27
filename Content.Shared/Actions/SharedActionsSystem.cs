@@ -1,9 +1,6 @@
 // <Trauma>
 using Content.Trauma.Common.Actions;
-using Content.Shared.Ghost;
-using Content.Shared.Popups;
 using Content.Trauma.Common.Heretic;
-using Robust.Shared.Network;
 // </Trauma>
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -17,6 +14,7 @@ using Content.Shared.Hands;
 using Content.Shared.Interaction;
 using Content.Shared.Inventory.Events;
 using Content.Shared.Mind;
+using Content.Shared.Popups;
 using Content.Shared.Rejuvenate;
 using Content.Shared.Whitelist;
 using Robust.Shared.Audio.Systems;
@@ -29,20 +27,18 @@ namespace Content.Shared.Actions;
 
 public abstract partial class SharedActionsSystem : EntitySystem
 {
-    // <Trauma>
-    [Dependency] private INetManager _net = default!;
-    [Dependency] private SharedPopupSystem _popup = default!;
-    // </Trauma>
     [Dependency] protected IGameTiming GameTiming = default!;
     [Dependency] private ISharedAdminLogManager _adminLogger = default!;
     [Dependency] private ActionBlockerSystem _actionBlocker = default!;
     [Dependency] private ActionContainerSystem _actionContainer = default!;
     [Dependency] private EntityWhitelistSystem _whitelist = default!;
     [Dependency] private RotateToFaceSystem _rotateToFace = default!;
+    [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedInteractionSystem _interaction = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
 
     [Dependency] private EntityQuery<ActionComponent> _actionQuery = default!;
     [Dependency] private EntityQuery<ActionsComponent> _actionsQuery = default!;
@@ -52,6 +48,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
     {
         base.Initialize();
         InitializeActionDoAfter();
+        InitializeRelay();
 
         SubscribeLocalEvent<ActionComponent, MapInitEvent>(OnActionMapInit);
 
@@ -89,9 +86,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     private void OnActionMapInit(Entity<ActionComponent> ent, ref MapInitEvent args)
     {
-        var comp = ent.Comp;
-        comp.OriginalIconColor = comp.IconColor;
-        DirtyField(ent, ent.Comp, nameof(ActionComponent.OriginalIconColor));
+        _appearance.SetData(ent, ActionState.Toggled, ent.Comp.Toggled);
     }
 
     private void OnActionShutdown(Entity<ActionComponent> ent, ref ComponentShutdown args)
@@ -250,6 +245,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
             return;
 
         ent.Comp.Toggled = toggled;
+        _appearance.SetData(ent, ActionState.Toggled, toggled);
         UpdateAction(ent);
         DirtyField(ent, ent.Comp, nameof(ActionComponent.Toggled));
     }
@@ -285,7 +281,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
     /// <param name="ev">The Request Perform Action Event</param>
     /// <param name="user">The user/performer of the action</param>
     /// <param name="skipDoActionRequest">Should this skip the initial doaction request?</param>
-    private bool TryPerformAction(RequestPerformActionEvent ev, EntityUid user, bool skipDoActionRequest = false)
+    private bool TryPerformAction(RequestPerformActionEvent ev, EntityUid user, bool skipDoActionRequest = false, bool showPopups = true)
     {
         if (!_actionsQuery.TryComp(user, out var component))
             return false;
@@ -316,11 +312,18 @@ public abstract partial class SharedActionsSystem : EntitySystem
         if (IsCooldownActive(action, curTime))
             return false;
 
+        var target = GetEntity(ev.EntityTarget);
+
         // check for action use prevention
-        var attemptEv = new ActionAttemptEvent(user);
+        var attemptEv = new ActionAttemptEvent(user, target);
         RaiseLocalEvent(action, ref attemptEv);
         if (attemptEv.Cancelled)
+        {
+            if (attemptEv.Reason != null && showPopups)
+                _popup.PopupEntity(attemptEv.Reason, user, user, attemptEv.Type);
+
             return false;
+        }
 
         // Validate request by checking action blockers and the like
         var provider = action.Comp.Container ?? user;
@@ -376,13 +379,23 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
         var target = GetEntity(netTarget);
 
+        // Already checked in validation, but GetWorldPosition causes errors if the entity doesn't exist.
+        if (TerminatingOrDeleted(target))
+        {
+            args.Invalid = true;
+            return;
+        }
+
         var targetWorldPos = _transform.GetWorldPosition(target);
 
         if (ent.Comp.RotateOnUse)
             _rotateToFace.TryFaceCoordinates(user, targetWorldPos);
 
         if (!ValidateEntityTarget(user, target, ent))
+        {
+            args.Invalid = true;
             return;
+        }
 
         _adminLogger.Add(LogType.Action,
             $"{ToPrettyString(user):user} is performing the {Name(ent):action} action (provided by {ToPrettyString(args.Provider):provider}) targeted at {ToPrettyString(target):target}.");
@@ -397,10 +410,10 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
         if (args.Input.EntityCoordinatesTarget is not { } netTarget)
         {
-            // <Trauma> - check fallback instead of setting it to false immediately
+            // <Trauma> - not necessarily invalid, check heretic shit
             var evCheck = new CheckWorldInstantActionEvent(user, provider);
             RaiseLocalEvent(ent, ref evCheck);
-            args.Invalid |= !evCheck.Fallback;
+            args.Invalid |= !evCheck.Handled;
             // </Trauma>
             return;
         }
@@ -412,9 +425,10 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
         if (!ValidateWorldTarget(user, target, ent))
         {
-            // <Trauma>
+            // <Trauma> - not necessarily invalid, check heretic shit
             var evCheck = new CheckWorldInstantActionEvent(user, provider);
             RaiseLocalEvent(ent, ref evCheck);
+            args.Invalid |= !evCheck.Handled;
             // </Trauma>
             return;
         }
@@ -425,9 +439,11 @@ public abstract partial class SharedActionsSystem : EntitySystem
             !TryComp<EntityTargetActionComponent>(ent, out var entTarget) ||
             !ValidateEntityTarget(user, targetEntity.Value, (ent, entTarget))))
         {
+            // <Trauma> - not necessarily invalid, check heretic shit
             var evCheck = new CheckWorldInstantActionEvent(user, provider);
             RaiseLocalEvent(ent, ref evCheck);
-            args.Invalid |= !evCheck.Fallback; // Goob edit
+            args.Invalid |= !evCheck.Handled;
+            // </Trauma>
             return;
         }
 
@@ -439,8 +455,6 @@ public abstract partial class SharedActionsSystem : EntitySystem
             ev.Target = target;
             ev.Entity = targetEntity;
         }
-
-        return;
     }
 
     public bool ValidateEntityTarget(EntityUid user, EntityUid target, Entity<EntityTargetActionComponent> ent)
@@ -577,7 +591,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
     /// <param name="action">The action being performed</param>
     /// <param name="actionEvent">An event override to perform. If null, uses <see cref="GetEvent"/></param>
     /// <param name="predicted">If false, prevents playing the action's sound on the client</param>
-    public void PerformAction(Entity<ActionsComponent?> performer, Entity<ActionComponent> action, BaseActionEvent? actionEvent = null, bool predicted = true)
+    public bool PerformAction(Entity<ActionsComponent?> performer, Entity<ActionComponent> action, BaseActionEvent? actionEvent = null, bool predicted = true) // Trauma - return a bool
     {
         if (!action.Comp.Predicted) // Goobstation
             predicted = false;
@@ -588,13 +602,13 @@ public abstract partial class SharedActionsSystem : EntitySystem
         if (action.Comp.AttachedEntity != null && action.Comp.AttachedEntity != performer)
         {
             Log.Error($"{ToPrettyString(performer)} is attempting to perform an action {ToPrettyString(action)} that is attached to another entity {ToPrettyString(action.Comp.AttachedEntity)}");
-            return;
+            return false; // Trauma - return value
         }
 
         actionEvent ??= GetEvent(action);
 
         if (actionEvent is not {} ev)
-            return;
+            return false; // Trauma - return value
 
         ev.Performer = performer;
 
@@ -605,18 +619,16 @@ public abstract partial class SharedActionsSystem : EntitySystem
         ev.Action = action;
 
         // TODO: This is where we'd add support for event lists
-        if (!action.Comp.RaiseOnUser && action.Comp.Container is {} container && !_mindQuery.HasComp(container))
+        if (!action.Comp.RaiseOnUser && action.Comp.Container is {} container && (!_mindQuery.HasComp(container) || action.Comp.RaiseOnMind)) // Trauma - check RaiseOnMind
             target = container;
-        // <Trauma>
         if (action.Comp.RaiseOnAction)
-            target = action.Owner;
-        // </Trauma>
+            target = action;
 
         RaiseLocalEvent(target, (object) ev, broadcast: true);
         handled = ev.Handled;
 
         if (!handled)
-            return; // no interaction occurred.
+            return false; // Trauma - return value, no system handled it
 
         // play sound, start cooldown
         if (ev.Toggle)
@@ -629,76 +641,13 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
         UpdateAction(action);
 
-        var performed = new ActionPerformedEvent(performer);
+        EntityUid? actionTarget = null;
+        if (actionEvent is EntityTargetActionEvent targetEv)
+            actionTarget = targetEv.Target;
+
+        var performed = new ActionPerformedEvent(performer, actionTarget);
         RaiseLocalEvent(action, ref performed);
-    }
-
-    /// <summary>
-    /// Goobstation
-    /// Performs an action WITH all condition checks.
-    /// </summary>
-    public bool TryPerformAction(EntityUid user, RequestPerformActionEvent ev)
-    {
-        if (!_actionsQuery.TryComp(user, out var component))
-            return false;
-
-        var actionEnt = GetEntity(ev.Action);
-        if (GetAction(actionEnt) is not {} action)
-            return false;
-
-        if (!CanPerformAction((user, component), action, ev))
-            return false;
-
-        // All checks passed. Perform the action!
-        PerformAction((user, component), action);
-        return true;
-    }
-
-    /// <summary>
-    /// Goobstation
-    /// Runs all checks to see if user currently can perform some action.
-    /// </summary>
-    public bool CanPerformAction(Entity<ActionsComponent?> user, Entity<ActionComponent> action, RequestPerformActionEvent ev)
-    {
-        if (!Resolve(user.Owner, ref user.Comp, false)
-            || !TryComp(action, out MetaDataComponent? metaData))
-            return false;
-
-        var name = Name(action, metaData);
-
-        // Does the user actually have the requested action?
-        if (!user.Comp.Actions.Contains(action))
-        {
-            _adminLogger.Add(LogType.Action,
-                $"{ToPrettyString(user):user} attempted to perform an action that they do not have: {name}.");
-            return false;
-        }
-
-        DebugTools.Assert(action.Comp.AttachedEntity == user);
-        if (!action.Comp.Enabled)
-            return false;
-
-        var curTime = GameTiming.CurTime;
-        if (IsCooldownActive(action, curTime))
-            return false;
-
-        // check for action use prevention
-        // TODO: make code below use this event with a dedicated component
-        var attemptEv = new ActionAttemptEvent(user);
-        RaiseLocalEvent(action, ref attemptEv);
-        if (attemptEv.Cancelled)
-            return false;
-
-        // Validate request by checking action blockers and the like
-        var provider = action.Comp.Container ?? user;
-        var validateEv = new ActionValidateEvent()
-        {
-            Input = ev,
-            User = user,
-            Provider = provider
-        };
-        RaiseLocalEvent(action, ref validateEv);
-        return !validateEv.Invalid;
+        return true; // Trauma
     }
 
     #endregion
@@ -848,11 +797,10 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
         performer.Comp ??= EnsureComp<ActionsComponent>(performer);
 
-        var ghost = HasComp<GhostComponent>(performer); // Goobstation
-
+        var ghost = _ghostQuery.HasComp(performer); // Trauma
         foreach (var actionId in container.Comp.Container.ContainedEntities)
         {
-            if (GetAction(actionId) is {} action && (!ghost || action.Comp.AllowGhostAction))
+            if (GetAction(actionId) is {} action && (!ghost || action.Comp.AllowGhostAction)) // Trauma - check ghost
                 AddActionDirect(performer, (action, action));
         }
     }
@@ -900,6 +848,9 @@ public abstract partial class SharedActionsSystem : EntitySystem
         {
             if (GetAction(actionId) is not {} ent)
                 return;
+
+            if (ent.Comp.DetachedItemAction) // Trauma
+                continue;
 
             if (ent.Comp.Container == container)
                 RemoveAction((performer, comp), (ent, ent));
@@ -974,16 +925,6 @@ public abstract partial class SharedActionsSystem : EntitySystem
         // See client-side system for UI code.
     }
 
-    // Goobstation start
-    public virtual void SaveActions(EntityUid performer)
-    {
-    }
-
-    public virtual void LoadActions(EntityUid performer)
-    {
-    }
-    // Goobstation end
-
     public bool ValidAction(Entity<ActionComponent> ent, bool canReach = true)
     {
         var (uid, comp) = ent;
@@ -1044,7 +985,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
     #region EquipHandlers
     private void OnDidEquip(Entity<ActionsComponent> ent, ref DidEquipEvent args)
     {
-        if (GameTiming.ApplyingState || !GameTiming.IsFirstTimePredicted) // Goob edit
+        if (GameTiming.ApplyingState)
             return;
 
         var ev = new GetItemActionsEvent(_actionContainer, args.EquipTarget, args.Equipment, args.SlotFlags);
@@ -1060,7 +1001,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     private void OnHandEquipped(Entity<ActionsComponent> ent, ref DidEquipHandEvent args)
     {
-        if (GameTiming.ApplyingState || !GameTiming.IsFirstTimePredicted) // Goob edit
+        if (GameTiming.ApplyingState)
             return;
 
         var ev = new GetItemActionsEvent(_actionContainer, args.User, args.Equipped);
@@ -1076,7 +1017,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     private void OnDidUnequip(EntityUid uid, ActionsComponent component, DidUnequipEvent args)
     {
-        if (GameTiming.ApplyingState || !GameTiming.IsFirstTimePredicted) // Goob edit
+        if (GameTiming.ApplyingState)
             return;
 
         // <Trauma>
@@ -1095,7 +1036,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     private void OnHandUnequipped(EntityUid uid, ActionsComponent component, DidUnequipHandEvent args)
     {
-        if (GameTiming.ApplyingState || !GameTiming.IsFirstTimePredicted) // Goob edit
+        if (GameTiming.ApplyingState)
             return;
 
         // Goobstation start
@@ -1124,29 +1065,21 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     public void SetIcon(Entity<ActionComponent?> ent, SpriteSpecifier? icon)
     {
-        if (!_actionQuery.Resolve(ent, ref ent.Comp) || ent.Comp.Icon == icon)
+        if (!_actionQuery.Resolve(ent, ref ent.Comp))
             return;
 
-        ent.Comp.Icon = icon;
-        DirtyField(ent, ent.Comp, nameof(ActionComponent.Icon));
-    }
-
-    public void SetIconOn(Entity<ActionComponent?> ent, SpriteSpecifier? iconOn)
-    {
-        if (!_actionQuery.Resolve(ent, ref ent.Comp) || ent.Comp.IconOn == iconOn)
-            return;
-
-        ent.Comp.IconOn = iconOn;
-        DirtyField(ent, ent.Comp, nameof(ActionComponent.IconOn));
+        if (icon == null)
+            _appearance.RemoveData(ent.Owner, ActionState.DynamicIcon);
+        else
+            _appearance.SetData(ent.Owner, ActionState.DynamicIcon, icon);
     }
 
     public void SetIconColor(Entity<ActionComponent?> ent, Color color)
     {
-        if (!_actionQuery.Resolve(ent, ref ent.Comp) || ent.Comp.IconColor == color)
+        if (!_actionQuery.Resolve(ent, ref ent.Comp))
             return;
 
-        ent.Comp.IconColor = color;
-        DirtyField(ent, ent.Comp, nameof(ActionComponent.IconColor));
+        _appearance.SetData(ent.Owner, ActionState.Color, color);
     }
 
     /// <summary>

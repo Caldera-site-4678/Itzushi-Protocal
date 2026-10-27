@@ -1,47 +1,46 @@
 // <Trauma>
 using Content.Trauma.Common.Kitchen;
 // </Trauma>
+using System.Linq;
 using Content.Server.Administration.Logs;
 using Content.Server.Construction;
-using Content.Server.Explosion.EntitySystems;
+using Content.Server.Construction.Components;
 using Content.Server.DeviceLinking.Systems;
+using Content.Server.Explosion.EntitySystems;
 using Content.Server.Hands.Systems;
 using Content.Server.Kitchen.Components;
+using Content.Server.Lightning;
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
 using Content.Server.Temperature.Systems;
-using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Reaction;
+using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Construction.EntitySystems;
+using Content.Shared.Damage.Components;
 using Content.Shared.Database;
-using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Destructible;
+using Content.Shared.DeviceLinking.Events;
 using Content.Shared.FixedPoint;
+using Content.Shared.IdentityManagement;
 using Content.Shared.Interaction;
 using Content.Shared.Interaction.Events;
-using Robust.Shared.Random;
-using Robust.Shared.Audio;
-using Content.Server.Lightning;
 using Content.Shared.Item;
 using Content.Shared.Kitchen;
 using Content.Shared.Kitchen.Components;
 using Content.Shared.Popups;
 using Content.Shared.Power;
+using Content.Shared.Power.EntitySystems;
+using Content.Shared.Stacks;
+using Content.Shared.Suicide;
 using Content.Shared.Tag;
 using Robust.Server.GameObjects;
+using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Containers;
-using Robust.Shared.Player;
-using System.Linq;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Random;
 using Robust.Shared.Timing;
-using Content.Shared.Stacks;
-using Content.Server.Construction.Components;
-using Content.Shared.Chat;
-using Content.Shared.Damage.Components;
-using Content.Shared.Power.EntitySystems;
-using Content.Shared.Temperature.Components;
 
 namespace Content.Server.Kitchen.EntitySystems
 {
@@ -65,7 +64,6 @@ namespace Content.Server.Kitchen.EntitySystems
         [Dependency] private HandsSystem _handsSystem = default!;
         [Dependency] private SharedItemSystem _item = default!;
         [Dependency] private SharedStackSystem _stack = default!;
-        [Dependency] private IPrototypeManager _prototype = default!;
         [Dependency] private IAdminLogManager _adminLogger = default!;
         [Dependency] private SharedSuicideSystem _suicide = default!;
         [Dependency] private SharedPowerStateSystem _powerState = default!;
@@ -103,7 +101,8 @@ namespace Content.Server.Kitchen.EntitySystems
             SubscribeLocalEvent<ActiveMicrowaveComponent, EntRemovedFromContainerMessage>(OnActiveMicrowaveRemove);
 
             SubscribeLocalEvent<ActivelyMicrowavedComponent, OnConstructionTemperatureEvent>(OnConstructionTemp);
-            SubscribeLocalEvent<ActivelyMicrowavedComponent, SolutionRelayEvent<ReactionAttemptEvent>>(OnReactionAttempt);
+            SubscribeLocalEvent<ActivelyMicrowavedComponent, SolutionRelayEvent<ReactionAttemptEvent>>(OnReactionAttemptRelay);
+            SubscribeLocalEvent<ActivelyMicrowavedComponent, ReactionAttemptEvent>(OnReactionAttempt);
 
             SubscribeLocalEvent<FoodRecipeProviderComponent, GetSecretRecipesEvent>(OnGetSecretRecipes);
         }
@@ -114,8 +113,9 @@ namespace Content.Server.Kitchen.EntitySystems
                 return;
             SetAppearance(ent.Owner, MicrowaveVisualState.Cooking, microwaveComponent);
 
-            microwaveComponent.PlayingStream =
-                _audio.PlayPvs(microwaveComponent.LoopingSound, ent, AudioParams.Default.WithLoop(true).WithMaxDistance(5))?.Entity;
+            var audioParams = microwaveComponent.LoopingSound?.Params ?? AudioParams.Default;
+            audioParams = audioParams.WithLoop(true).WithMaxDistance(5);
+            microwaveComponent.PlayingStream = _audio.PlayPvs(microwaveComponent.LoopingSound, ent, audioParams)?.Entity;
             _powerState.SetWorkingState(ent.Owner, true);
         }
 
@@ -147,9 +147,14 @@ namespace Content.Server.Kitchen.EntitySystems
             args.Result = HandleResult.False;
         }
 
+        private void OnReactionAttemptRelay(Entity<ActivelyMicrowavedComponent> ent, ref SolutionRelayEvent<ReactionAttemptEvent> args)
+        {
+            OnReactionAttempt(ent, ref args.Event);
+        }
+
         // Stop reagents from reacting if they are currently reserved for a microwave recipe.
         // For example Egg would cook into EggCooked, causing it to not being removed once we are done microwaving.
-        private void OnReactionAttempt(Entity<ActivelyMicrowavedComponent> ent, ref SolutionRelayEvent<ReactionAttemptEvent> args)
+        private void OnReactionAttempt(Entity<ActivelyMicrowavedComponent> ent, ref ReactionAttemptEvent args)
         {
             if (!TryComp<ActiveMicrowaveComponent>(ent.Comp.Microwave, out var activeMicrowaveComp))
                 return;
@@ -161,9 +166,9 @@ namespace Content.Server.Kitchen.EntitySystems
 
             foreach (var reagent in recipeReagents)
             {
-                if (args.Event.Reaction.Reactants.ContainsKey(reagent))
+                if (args.Reaction.Reactants.ContainsKey(reagent))
                 {
-                    args.Event.Cancelled = true;
+                    args.Cancelled = true;
                     return;
                 }
             }
@@ -180,8 +185,7 @@ namespace Content.Server.Kitchen.EntitySystems
             var heatToAdd = time * component.BaseHeatMultiplier;
             foreach (var entity in component.Storage.ContainedEntities)
             {
-                if (TryComp<TemperatureComponent>(entity, out var tempComp))
-                    _temperature.ChangeHeat(entity, heatToAdd * component.ObjectHeatMultiplier, false, tempComp);
+                _temperature.ChangeHeat(entity, heatToAdd * component.ObjectHeatMultiplier, false);
 
                 foreach (var (_, soln) in _solutionContainer.EnumerateSolutions(entity))
                 {
@@ -198,7 +202,7 @@ namespace Content.Server.Kitchen.EntitySystems
         {
             // TODO Turn recipe.IngredientsReagents into a ReagentQuantity[]
 
-            var totalReagentsToRemove = new Dictionary<string, FixedPoint2>(recipe.IngredientsReagents);
+            var totalReagentsToRemove = new Dictionary<ProtoId<ReagentPrototype>, FixedPoint2>(recipe.IngredientsReagents);
 
             // this is spaghetti ngl
             foreach (var item in component.Storage.ContainedEntities)
@@ -240,7 +244,7 @@ namespace Content.Server.Kitchen.EntitySystems
                         // If an entity has a stack component, use the stacktype instead of prototype id
                         if (TryComp<StackComponent>(item, out var stackComp))
                         {
-                            itemID = _prototype.Index(stackComp.StackTypeId).Spawn;
+                            itemID = ProtoMan.Index(stackComp.StackTypeId).Spawn;
                         }
                         else
                         {
@@ -306,13 +310,14 @@ namespace Content.Server.Kitchen.EntitySystems
 
             var victim = args.Victim;
 
-            var othersMessage = Loc.GetString("microwave-component-suicide-others-message", ("victim", victim));
             var selfMessage = Loc.GetString("microwave-component-suicide-message");
+            var othersMessage = Loc.GetString("microwave-component-suicide-others-message", ("victim", Identity.Entity(victim, EntityManager)));
 
-            _popupSystem.PopupEntity(othersMessage, victim, Filter.PvsExcept(victim), true);
-            _popupSystem.PopupEntity(selfMessage, victim, victim);
+            _popupSystem.PopupEntity(selfMessage, othersMessage, victim, victim);
 
-            _audio.PlayPvs(ent.Comp.ClickSound, ent.Owner, AudioParams.Default.WithVolume(-2));
+            var audioParams = ent.Comp.ClickSound?.Params ?? AudioParams.Default;
+            audioParams = audioParams.AddVolume(-2);
+            _audio.PlayPvs(ent.Comp.ClickSound, ent.Owner, audioParams);
             ent.Comp.CurrentCookTimerTime = 10;
             Wzhzhzh(ent.Owner, ent.Comp, args.Victim);
             UpdateUserInterfaceState(ent.Owner, ent.Comp);
@@ -398,7 +403,7 @@ namespace Content.Server.Kitchen.EntitySystems
 
         private void OnAnchorChanged(EntityUid uid, MicrowaveComponent component, ref AnchorStateChangedEvent args)
         {
-            if (!args.Anchored)
+            if (!args.Anchored && !TerminatingOrDeleted(uid)) // Trauma - dont try to empty it if it's deleting
                 _container.EmptyContainer(component.Storage);
         }
 
@@ -537,7 +542,7 @@ namespace Content.Server.Kitchen.EntitySystems
                 // If a microwave recipe uses a stacked item, use the default stack prototype id instead of prototype id
                 if (TryComp<StackComponent>(item, out var stackComp))
                 {
-                    solidID = _prototype.Index<StackPrototype>(stackComp.StackTypeId).Spawn;
+                    solidID = ProtoMan.Index<StackPrototype>(stackComp.StackTypeId).Spawn;
                     amountToAdd = stackComp.Count;
                 }
                 else
@@ -695,7 +700,7 @@ namespace Content.Server.Kitchen.EntitySystems
         {
             foreach (ProtoId<FoodRecipePrototype> recipeId in ent.Comp.ProvidedRecipes)
             {
-                if (_prototype.Resolve(recipeId, out var recipeProto))
+                if (ProtoMan.Resolve(recipeId, out var recipeProto))
                 {
                     args.Recipes.Add(recipeProto);
                 }
@@ -709,7 +714,9 @@ namespace Content.Server.Kitchen.EntitySystems
                 return;
 
             _container.EmptyContainer(ent.Comp.Storage);
-            _audio.PlayPvs(ent.Comp.ClickSound, ent, AudioParams.Default.WithVolume(-2));
+            var audioParams = ent.Comp.ClickSound?.Params ?? AudioParams.Default;
+            audioParams = audioParams.AddVolume(-2);
+            _audio.PlayPvs(ent.Comp.ClickSound, ent, audioParams);
             UpdateUserInterfaceState(ent, ent.Comp);
         }
 
@@ -734,7 +741,9 @@ namespace Content.Server.Kitchen.EntitySystems
             ent.Comp.CurrentCookTimeButtonIndex = args.ButtonIndex;
             ent.Comp.CurrentCookTimerTime = args.NewCookTime;
             ent.Comp.CurrentCookTimeEnd = TimeSpan.Zero;
-            _audio.PlayPvs(ent.Comp.ClickSound, ent, AudioParams.Default.WithVolume(-2));
+            var audioParams = ent.Comp.ClickSound?.Params ?? AudioParams.Default;
+            audioParams = audioParams.AddVolume(-2);
+            _audio.PlayPvs(ent.Comp.ClickSound, ent, audioParams);
             UpdateUserInterfaceState(ent, ent.Comp);
         }
         #endregion

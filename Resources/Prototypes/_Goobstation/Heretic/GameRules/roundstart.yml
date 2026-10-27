@@ -21,6 +21,15 @@
       proto: HereticSkills
 
 - type: entity
+  parent: BaseHereticRule
+  id: HereticRule
+  components:
+  - type: AntagSelection
+    antags:
+    - !type:FixedAntagCount
+      proto: Heretic
+
+- type: entity
   parent: [ BaseRoundstartAntagRule, BaseHereticRule ]
   id: HereticRoundstart
   components:
@@ -33,6 +42,8 @@
        min: 1
        max: 6
       playerRatio: 10
+  - type: DynamicRuleCost
+    cost: 120
 
 - type: entity
   parent: HereticRoundstart

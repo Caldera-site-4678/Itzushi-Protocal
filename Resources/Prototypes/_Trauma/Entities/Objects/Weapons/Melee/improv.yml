@@ -24,7 +24,6 @@
       Steel: 50
   - type: Tag
     tags:
-    - BaseballBat
     - Recyclable
   - type: Solution
     id: melee
@@ -67,7 +66,6 @@
       Steel: 50
   - type: Tag
     tags:
-    - BaseballBat
     - Recyclable
   - type: Item
     storedSprite:
@@ -130,7 +128,6 @@
       Steel: 50
   - type: Tag
     tags:
-    - BaseballBat
     - Recyclable
   - type: UndetectableContraband
   - type: SpawnAfterInteract
@@ -145,7 +142,7 @@
   parent: [ BaseItem, BaseRevMinorContraband ]
   id: NailBoardTrap
   name: nail board
-  description: A nasty trap, probbaly gonna give your foot an infection.
+  description: A nasty trap, probably gonna give your foot an infection.
   placement:
     mode: SnapgridCenter
   components:
@@ -185,7 +182,8 @@
     slipData:
       launchForwardsMultiplier: 0
   - type: TriggerOnStepTrigger
-  - type: DamageUserOnTrigger
+  - type: DamageOnTrigger
+    targetUser: true
     damage:
       types:
         Piercing: 15
@@ -250,6 +248,11 @@
         restitution: 0.3
         friction: 0.2
   - type: Sharp
+  - type: Tool
+    qualities:
+    - Slicing
+    useSound:
+      path: /Audio/Items/Culinary/chop.ogg
   - type: Sprite
     sprite: _Trauma/Objects/Weapons/Melee/spear_pipebomb.rsi
     layers:
@@ -285,8 +288,8 @@
     initialBeepDelay: 0
     beepSound: /Audio/Effects/lightburn.ogg
   - type: RandomTimerTrigger
-    min: 3
-    max: 5
+    min: 5
+    max: 8
   - type: ExplodeOnTrigger
     keysIn:
     - timer
@@ -308,7 +311,6 @@
     tags:
     - Grenade
     - HandGrenade
-    - Spear
   - type: TriggerOnEmbed
   - type: ToggleComponentsOnTrigger
     components:
@@ -348,7 +350,7 @@
     node: finish
 
 - type: entity
-  parent: [ BaseItem, BaseMinorContraband, MetalToolDurability ]
+  parent: [ BaseKnife, BaseMinorContraband, MetalToolDurability ]
   id: PipeSpear
   name: pipe shank
   description: A pipe sharpened to a nasty point, could be a great throwing weapon.

@@ -73,7 +73,7 @@
     subtype: role-subtype-blob
   - type: BlobRole
 
-- type: factionIcon
+- type: statusIcon
   id: BlobFaction
   priority: 10
   showTo:
@@ -85,8 +85,3 @@
   icon:
     sprite: /Textures/_Goobstation/Blob/Interface/Misc/antag_icon.rsi
     state: blob
-
-- type: currency
-  id: BlobPoint
-  displayName: store-currency-display-blob-points
-  canWithdraw: false

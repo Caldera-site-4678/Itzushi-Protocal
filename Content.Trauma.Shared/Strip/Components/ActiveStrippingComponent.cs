@@ -13,9 +13,6 @@ public sealed partial class ActiveStrippingComponent : Component
     public int ActiveCount;
 
     // Not networked, server-side only, tracks active doafter indices to avoid double-counting.
+    [ViewVariables]
     public HashSet<ushort> TrackedDoAfters = new();
-
-    // Not networked, tracks storages opened via bag access so IgnoreUIRangeComponent is cleaned up on close.
-    [DataField]
-    public HashSet<EntityUid> BagAccessOpenedStorages = new();
 }

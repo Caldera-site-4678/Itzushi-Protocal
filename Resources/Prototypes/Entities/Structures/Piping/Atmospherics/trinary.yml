@@ -28,10 +28,118 @@
           pipeDirection: South
 
 - type: entity
-  abstract: true
-  id: GasTrinaryFlippedBase
-  suffix: Flipped
+  parent: GasTrinaryBase
+  id: !type:CreateVariants
+    values: [ GasFilter, GasFilterAlt1, GasFilterAlt2 ]
+  name: gas filter
+  description: Very useful for filtering gases.
+  categories: !type:CreateVariants
+    sequences: [ [ ], [ HideSpawnMenu ], [ HideSpawnMenu ] ]
+  placement:
+    mode: AlignAtmosPipeLayers
   components:
+    # <Trauma>
+    - type: VentCrawlerTube
+      containerId: VentCrawlerTube
+    - type: VentCrawlerJunction
+      degrees:
+      - 0
+      - -90
+      - 180
+    - type: ContainerContainer
+      containers:
+        VentCrawlerTube: !type:Container
+    # </Trauma>
+    - type: SubFloorHide
+      visibleLayers:
+      - enum.SubfloorLayers.FirstLayer
+    - type: Sprite
+      sprite: Structures/Piping/Atmospherics/gasfilter.rsi
+      layers:
+        - sprite: !type:CreateVariants
+            values: [ Structures/Piping/Atmospherics/pipe.rsi, Structures/Piping/Atmospherics/pipe_alt1.rsi, Structures/Piping/Atmospherics/pipe_alt2.rsi ]
+          state: pipeTrinaryConnectors
+          map: [ "enum.PipeVisualLayers.Pipe" ]
+        - state: gasFilter
+          map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
+    - type: AtmosPipeLayers
+      pipeLayer: !type:CreateVariants
+        values: [ 0, 1, 2 ]
+    - type: Appearance
+    - type: GenericVisualizer
+      visuals:
+        enum.FilterVisuals.Enabled:
+          enabled:
+            True: { state: gasFilterOn }
+            False: { state: gasFilter }
+    - type: PipeColorVisuals
+    - type: ActivatableUI
+      key: enum.GasFilterUiKey.Key
+    - type: ActivatableUIRequiresAnchor
+    - type: UserInterface
+      interfaces:
+        enum.GasFilterUiKey.Key:
+          type: GasFilterBoundUserInterface
+    - type: GasFilter
+      enabled: false
+      transferRate: 1000
+      maxTransferRate: 1000
+    - type: Flippable
+      mirrorEntity: GasFilterFlipped
+    - type: Construction
+      graph: !type:CreateVariants
+        values: [ GasTrinary, GasTrinaryAlt1, GasTrinaryAlt2 ]
+      node: filter
+    - type: AmbientSound
+      enabled: false
+      volume: -9
+      range: 5
+      sound:
+        path: /Audio/Ambience/Objects/gas_hiss.ogg
+    - type: AtmosMonitoringConsoleDevice
+      navMapBlip: GasFlowRegulator
+    - type: GuideHelp
+      guides:
+      - MixingAndFiltering
+
+- type: entity
+  parent: GasFilter
+  id: !type:CreateVariants
+    values: [ GasFilterFlipped, GasFilterFlippedAlt1, GasFilterFlippedAlt2 ]
+  name: gas filter
+  suffix: Flipped
+  categories: !type:CreateVariants
+    sequences: [ [ ], [ HideSpawnMenu ], [ HideSpawnMenu ] ]
+  placement:
+    mode: AlignAtmosPipeLayers
+  components:
+  - type: SubFloorHide
+    visibleLayers:
+    - enum.SubfloorLayers.FirstLayer
+  - type: Sprite
+    sprite: Structures/Piping/Atmospherics/gasfilter.rsi
+    layers:
+    - sprite: !type:CreateVariants
+        values: [ Structures/Piping/Atmospherics/pipe.rsi, Structures/Piping/Atmospherics/pipe_alt1.rsi, Structures/Piping/Atmospherics/pipe_alt2.rsi ]
+      state: pipeTrinaryConnectors
+      map: [ "enum.PipeVisualLayers.Pipe" ]
+    - state: gasFilterF
+      map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
+  - type: AtmosPipeLayers
+    pipeLayer: !type:CreateVariants
+      values: [ 0, 1, 2 ]
+  - type: Flippable
+    mirrorEntity: GasFilter
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.FilterVisuals.Enabled:
+        enabled:
+          True: { state: gasFilterFOn }
+          False: { state: gasFilterF }
+  - type: Construction
+    node: filterflipped
+  - type: PipeColorVisuals
   - type: NodeContainer
     nodes:
       inlet:
@@ -47,110 +155,16 @@
         nodeGroupID: Pipe
         pipeDirection: North
 
-# Goobstation
-# a non-flippable filter
-- type: entity
-  abstract: true
-  parent: GasTrinaryBase
-  id: GasFilterBase
-  components:
-    - type: SubFloorHide
-      visibleLayers:
-      - enum.SubfloorLayers.FirstLayer
-    - type: Sprite
-      sprite: Structures/Piping/Atmospherics/gasfilter.rsi
-      layers:
-        - sprite: Structures/Piping/Atmospherics/pipe.rsi
-          state: pipeTrinaryConnectors
-          map: [ "enum.PipeVisualLayers.Pipe" ]
-        - state: gasFilter
-          map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
-    - type: Appearance
-    - type: GenericVisualizer
-      visuals:
-        enum.FilterVisuals.Enabled:
-          enabled:
-            True: { state: gasFilterOn }
-            False: { state: gasFilter }
-    - type: PipeColorVisuals
-    - type: UserInterface
-      interfaces:
-        enum.GasFilterUiKey.Key:
-          type: GasFilterBoundUserInterface
-    - type: GasFilter
-      enabled: false
-      transferRate: 1000
-      maxTransferRate: 1000
-    - type: Construction
-      graph: GasTrinary
-      node: filter
-    - type: AmbientSound
-      enabled: false
-      volume: -9
-      range: 5
-      sound:
-        path: /Audio/Ambience/Objects/gas_hiss.ogg
-    - type: AtmosMonitoringConsoleDevice
-      navMapBlip: GasFlowRegulator
-    - type: GuideHelp
-      guides:
-      - MixingAndFiltering
-    - type: VentCrawlerTube # Goobstation - ventcrawl
-      containerId: VentCrawlerTube
-    - type: VentCrawlerJunction # Goobstation - ventcrawl
-      degrees:
-        - 0
-        - -90
-        - 180
-    - type: ContainerContainer # Goobstation - ventcrawl
-      containers:
-        VentCrawlerTube: !type:Container
-
-# Goobstation - reparent to new base filter proto
-- type: entity
-  parent: GasFilterBase
-  id: GasFilter
-  name: gas filter
-  description: Very useful for filtering gases.
-  components:
-  - type: Flippable
-    mirrorEntity: GasFilterFlipped
-  # Goobstation - if you see a merge conflict here, move all new components to GasFilterBase
-
-# Goobstation - reparent to new base protos
-- type: entity
-  parent: [GasTrinaryFlippedBase, GasFilter]
-  id: GasFilterFlipped
-  components:
-  - type: SubFloorHide
-    visibleLayers:
-    - enum.SubfloorLayers.FirstLayer
-  - type: Sprite
-    layers:
-    - sprite: Structures/Piping/Atmospherics/pipe.rsi
-      state: pipeTrinaryConnectors
-      map: [ "enum.PipeVisualLayers.Pipe" ]
-    - state: gasFilterF
-      map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
-  - type: Flippable
-    mirrorEntity: GasFilter
-  - type: GenericVisualizer
-    visuals:
-      enum.FilterVisuals.Enabled:
-        enabled:
-          True: { state: gasFilterFOn }
-          False: { state: gasFilterF }
-  - type: Construction
-    node: filterflipped
-  # Goobstation - if you see a merge conflict here, move all new components to GasFilterBase
-
 - type: entity
   parent: GasTrinaryBase
-  id: GasMixer
+  id: !type:CreateVariants
+    values: [ GasMixer, GasMixerAlt1, GasMixerAlt2 ]
   name: gas mixer
   description: Very useful for mixing gases.
+  categories: !type:CreateVariants
+    sequences: [ [ ], [ HideSpawnMenu ], [ HideSpawnMenu ] ]
   placement:
-    mode: SnapgridCenter
+    mode: AlignAtmosPipeLayers
   components:
     - type: SubFloorHide
       visibleLayers:
@@ -158,11 +172,15 @@
     - type: Sprite
       sprite: Structures/Piping/Atmospherics/gasmixer.rsi
       layers:
-        - sprite: Structures/Piping/Atmospherics/pipe.rsi
+        - sprite: !type:CreateVariants
+            values: [ Structures/Piping/Atmospherics/pipe.rsi, Structures/Piping/Atmospherics/pipe_alt1.rsi, Structures/Piping/Atmospherics/pipe_alt2.rsi ]
           state: pipeTrinaryConnectors
           map: [ "enum.PipeVisualLayers.Pipe" ]
         - state: gasMixer
           map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
+    - type: AtmosPipeLayers
+      pipeLayer: !type:CreateVariants
+        values: [ 0, 1, 2 ]
     - type: Appearance
     - type: GenericVisualizer
       visuals:
@@ -171,6 +189,9 @@
             True: { state: gasMixerOn }
             False: { state: gasMixer }
     - type: PipeColorVisuals
+    - type: ActivatableUI
+      key: enum.GasMixerUiKey.Key
+    - type: ActivatableUIRequiresAnchor
     - type: UserInterface
       interfaces:
         enum.GasMixerUiKey.Key:
@@ -182,7 +203,8 @@
     - type: Flippable
       mirrorEntity: GasMixerFlipped
     - type: Construction
-      graph: GasTrinary
+      graph: !type:CreateVariants
+        values: [ GasTrinary, GasTrinaryAlt1, GasTrinaryAlt2 ]
       node: mixer
     - type: AmbientSound
       enabled: false
@@ -208,20 +230,27 @@
 
 - type: entity
   parent: GasMixer
-  id: GasMixerFlipped
+  id: !type:CreateVariants
+    values: [ GasMixerFlipped, GasMixerFlippedAlt1, GasMixerFlippedAlt2 ]
   name: gas mixer
   suffix: Flipped
+  categories: !type:CreateVariants
+    sequences: [ [ ], [ HideSpawnMenu ], [ HideSpawnMenu ] ]
   placement:
-    mode: SnapgridCenter
+    mode: AlignAtmosPipeLayers
   components:
   - type: Sprite
     sprite: Structures/Piping/Atmospherics/gasmixer.rsi
     layers:
-    - sprite: Structures/Piping/Atmospherics/pipe.rsi
+    - sprite: !type:CreateVariants
+        values: [ Structures/Piping/Atmospherics/pipe.rsi, Structures/Piping/Atmospherics/pipe_alt1.rsi, Structures/Piping/Atmospherics/pipe_alt2.rsi ]
       state: pipeTrinaryConnectors
       map: [ "enum.PipeVisualLayers.Pipe" ]
     - state: gasMixerF
       map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
+  - type: AtmosPipeLayers
+    pipeLayer: !type:CreateVariants
+      values: [ 0, 1, 2 ]
   - type: Appearance
   - type: GenericVisualizer
     visuals:
@@ -261,11 +290,14 @@
 
 - type: entity
   parent: GasPipeBase
-  id: PressureControlledValve
+  id: !type:CreateVariants
+    values: [ PressureControlledValve, PressureControlledValveAlt1, PressureControlledValveAlt2 ]
   name: pneumatic valve
   description: A bidirectional valve controlled by pressure. Opens if the output pipe is lower than the pressure of the control pipe by 101.325 kPa.
+  categories: !type:CreateVariants
+    sequences: [ [ ], [ HideSpawnMenu ], [ HideSpawnMenu ] ]
   placement:
-    mode: SnapgridCenter
+    mode: AlignAtmosPipeLayers
   components:
     - type: AtmosDevice
     - type: Tag
@@ -293,11 +325,15 @@
     - type: Sprite
       sprite: Structures/Piping/Atmospherics/pneumaticvalve.rsi
       layers:
-        - sprite: Structures/Piping/Atmospherics/pipe.rsi
+        - sprite: !type:CreateVariants
+            values: [ Structures/Piping/Atmospherics/pipe.rsi, Structures/Piping/Atmospherics/pipe_alt1.rsi, Structures/Piping/Atmospherics/pipe_alt2.rsi ]
           state: pipeTrinaryConnectors
           map: [ "enum.PipeVisualLayers.Pipe" ]
         - state: off
           map: [ "enum.SubfloorLayers.FirstLayer", "enabled" ]
+    - type: AtmosPipeLayers
+      pipeLayer: !type:CreateVariants
+        values: [ 0, 1, 2 ]
     - type: Appearance
     - type: GenericVisualizer
       visuals:
@@ -314,7 +350,8 @@
       sound:
         path: /Audio/Ambience/Objects/gas_hiss.ogg
     - type: Construction
-      graph: GasTrinary
+      graph: !type:CreateVariants
+        values: [ GasTrinary, GasTrinaryAlt1, GasTrinaryAlt2 ]
       node: pneumaticvalve
     - type: AtmosMonitoringConsoleDevice
       navMapBlip: GasFlowRegulator

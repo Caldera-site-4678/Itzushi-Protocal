@@ -6,7 +6,8 @@ using Content.Trauma.Shared.Standing;
 using Content.Shared.Interaction.Events;
 using Content.Shared.Physics;
 using Content.Shared.Popups;
-using Content.Shared.Timing;
+using Content.Shared.Timing.Components;
+using Content.Shared.Timing.Systems;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Physics;
 using Robust.Shared.Physics.Systems;
@@ -38,7 +39,7 @@ public abstract partial class SharedBlinkSystem : EntitySystem
 
         ent.Comp.IsActive = !ent.Comp.IsActive;
         var message = ent.Comp.IsActive ? "blink-activated-message" : "blink-deactivated-message";
-        _popup.PopupClient(Loc.GetString(message), args.User);
+        _popup.PopupEntity(Loc.GetString(message), args.User);
         Dirty(ent);
         args.Handled = true;
     }
