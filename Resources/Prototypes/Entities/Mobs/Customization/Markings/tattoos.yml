@@ -1,7 +1,6 @@
 - type: marking
   id: TattooHiveChest
   bodyPart: Chest
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -14,7 +13,6 @@
 - type: marking
   id: TattooNightlingChest
   bodyPart: Chest
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -27,7 +25,6 @@
 - type: marking
   id: TattooSilverburghLeftLeg
   bodyPart: LLeg
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -40,7 +37,6 @@
 - type: marking
   id: TattooSilverburghRightLeg
   bodyPart: RLeg
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -53,7 +49,6 @@
 - type: marking
   id: TattooCampbellLeftArm
   bodyPart: LArm
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -66,7 +61,6 @@
 - type: marking
   id: TattooCampbellRightArm
   bodyPart: RArm
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -79,7 +73,6 @@
 - type: marking
   id: TattooCampbellLeftLeg
   bodyPart: LLeg
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -92,7 +85,6 @@
 - type: marking
   id: TattooCampbellRightLeg
   bodyPart: RLeg
-  groupWhitelist: [Human]
   coloring:
     default:
       type:
@@ -105,7 +97,6 @@
 - type: marking
   id: TattooEyeRight
   bodyPart: Eyes
-  groupWhitelist: [Human, Slime, Reptilian]
   coloring:
     default:
       type:
@@ -118,7 +109,6 @@
 - type: marking
   id: TattooEyeLeft
   bodyPart: Eyes
-  groupWhitelist: [Human, Slime, Reptilian]
   coloring:
     default:
       type:

@@ -93,7 +93,6 @@
 - type: marking
   id: GauzeUpperArmRight
   bodyPart: RArm
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:
@@ -105,8 +104,6 @@
 
 - type: marking
   id: GauzeLowerArmRight
-  bodyPart: RHand
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:
@@ -118,8 +115,6 @@
 
 - type: marking
   id: GauzeLeftArm
-  bodyPart: LArm
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:
@@ -132,7 +127,6 @@
 - type: marking
   id: GauzeLowerLegLeft
   bodyPart: LFoot
-  groupWhitelist: [Human, Arachnid]
   coloring:
     default:
       type:
@@ -145,7 +139,6 @@
 - type: marking
   id: GauzeUpperLegLeft
   bodyPart: LLeg
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:
@@ -158,7 +151,6 @@
 - type: marking
   id: GauzeUpperLegRight
   bodyPart: RLeg
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:
@@ -171,7 +163,6 @@
 - type: marking
   id: GauzeLowerLegRight
   bodyPart: RFoot
-  groupWhitelist: [Human, Arachnid]
   coloring:
     default:
       type:
@@ -184,7 +175,6 @@
 - type: marking
   id: GauzeBoxerWrapRight
   bodyPart: RHand
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:
@@ -197,7 +187,6 @@
 - type: marking
   id: GauzeBoxerWrapLeft
   bodyPart: LHand
-  groupWhitelist: [Human, Reptilian, Arachnid]
   coloring:
     default:
       type:

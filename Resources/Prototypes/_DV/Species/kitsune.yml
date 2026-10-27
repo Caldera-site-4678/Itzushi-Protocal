@@ -1,0 +1,9 @@
+- type: species
+  id: Kitsune
+  name: Kitsune
+  roundStart: true
+  prototype: MobKitsune
+  sprites: MobHumanSprites
+  dollPrototype: AppearanceKitsune
+  skinColoration: HumanToned
+  baseScale: 1, 1
