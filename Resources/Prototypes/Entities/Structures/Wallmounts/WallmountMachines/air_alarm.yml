@@ -51,12 +51,15 @@
     group: AirAlarm
   - type: Clickable
   - type: InteractionOutline
+  - type: ActivatableUI
+    key: enum.SharedAirAlarmInterfaceKey.Key
   - type: UserInterface
     interfaces:
       enum.SharedAirAlarmInterfaceKey.Key:
         type: AirAlarmBoundUserInterface
       enum.WiresUiKey.Key:
         type: WiresBoundUserInterface
+  - type: ActivatableUIRequiresPower
   - type: WiresPanel
   - type: Wires
     boardName: wires-board-name-airalarm
@@ -89,23 +92,17 @@
     damageContainer: StructuralInorganic
   - type: Destructible
     thresholds:
-      - trigger:
-          !type:DamageTrigger
-          damage: 200
-        behaviors:
-          - !type:DoActsBehavior
-            acts: [ "Destruction" ]
-      - trigger:
-          !type:DamageTrigger
-          damage: 100
-        behaviors:
-          - !type:DoActsBehavior
-            acts: [ "Destruction" ]
-          - !type:PlaySoundBehavior
-            sound:
-              collection: MetalGlassBreak
-              params:
-                volume: -4
+    - trigger:
+        !type:DamageTrigger
+        damage: 100
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+      - !type:PlaySoundBehavior
+        sound:
+          collection: MetalGlassBreak
+          params:
+            volume: -4
   - type: GuideHelp
     guides:
     - AirAlarms
@@ -136,23 +133,17 @@
     anchored: true
   - type: Destructible
     thresholds:
-      - trigger:
-          !type:DamageTrigger
-          damage: 20
-        behaviors:
-          - !type:DoActsBehavior
-            acts: [ "Destruction" ]
-      - trigger:
-          !type:DamageTrigger
-          damage: 15
-        behaviors:
-          - !type:DoActsBehavior
-            acts: [ "Destruction" ]
-          - !type:PlaySoundBehavior
-            sound:
-              collection: MetalGlassBreak
-              params:
-                volume: -4
+    - trigger:
+        !type:DamageTrigger
+        damage: 15
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+      - !type:PlaySoundBehavior
+        sound:
+          collection: MetalGlassBreak
+          params:
+            volume: -4
 
 - type: entity
   abstract: true # Trauma - xeno station content isn't cherry picked

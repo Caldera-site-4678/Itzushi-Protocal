@@ -36,7 +36,7 @@ public sealed class EntityHealthBarOverlay : Overlay
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowFOV;
     public HashSet<string> DamageContainers = new();
-    public ProtoId<HealthIconPrototype>? StatusIcon;
+    public ProtoId<StatusIconPrototype>? StatusIcon;
 
     public EntityHealthBarOverlay(IEntityManager entManager, IPrototypeManager prototype)
     {
@@ -107,14 +107,14 @@ public sealed class EntityHealthBarOverlay : Overlay
             var yOffset = bounds.Height * EyeManager.PixelsPerMeter / 2 - 3f;
             var widthOfMob = bounds.Width * EyeManager.PixelsPerMeter;
 
-            var position = new Vector2(-widthOfMob / EyeManager.PixelsPerMeter / 2, yOffset / EyeManager.PixelsPerMeter);
+            var position = new Vector2(sprite.Offset.X - widthOfMob / EyeManager.PixelsPerMeter / 2, sprite.Offset.Y + yOffset / EyeManager.PixelsPerMeter);
             var color = GetProgressColor(deathProgress.ratio, deathProgress.inCrit);
 
             // Hardcoded width of the progress bar because it doesn't match the texture.
             const float startX = 8f;
             var endX = widthOfMob - 8f;
 
-            var xProgress = (endX - startX) * deathProgress.ratio + startX;
+            var xProgress = MathHelper.Lerp(startX, endX, Math.Clamp(deathProgress.ratio, 0f, 1f)); // Trauma - use Lerp helper and clamp ratio to avoid validation error
 
             var boxBackground = new Box2(new Vector2(startX, 0f) / EyeManager.PixelsPerMeter, new Vector2(endX, 3f) / EyeManager.PixelsPerMeter);
             boxBackground = boxBackground.Translated(position);

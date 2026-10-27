@@ -1,11 +1,72 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 - type: npcFaction
+  id: Chicken
+
+- type: npcFaction
+  id: Raptor
+  hostile:
+  - Chicken
+  - Changeling
+  - Heretic
+  - Blob
+  - BloodCult
+  - Shadowling
+  - PirateFaction
+  - Wraith
+  - Lavafauna
+  - NanoTrasen
+  - Dragon
+  - Mouse
+  - Passive
+  - PetsNT
+  - SimpleHostile
+  - SimpleNeutral
+  - Syndicate
+  - Xeno
+  - Zombie
+  - Revolutionary
+  - Wizard
+  - Xenoborg
+  - NanoTrasen
+  - RaptorTamed
+
+- type: npcFaction
+  id: RaptorTamed
+  friendly:
+  - NanoTrasen
+  hostile:
+  - Chicken
+  - Changeling
+  - Heretic
+  - Blob
+  - BloodCult
+  - Shadowling
+  - PirateFaction
+  - Wraith
+  - Lavafauna
+  - NanoTrasen
+  - Dragon
+  - Mouse
+  - Passive
+  - PetsNT
+  - SimpleHostile
+  - SimpleNeutral
+  - Syndicate
+  - Xeno
+  - Zombie
+  - Revolutionary
+  - Wizard
+  - Xenoborg
+  - Raptor # For Jurassic park
+
+- type: npcFaction
   id: Insurgent
   hostile:
   - Changeling
   - Heretic
   - Blob
+  - BloodCult
   - Shadowling
   - PirateFaction
   - Wraith
@@ -31,6 +92,11 @@
   - Insurgent
 
 - type: npcFaction
+  id: InsurgentFriend
+  friendly:
+  - Insurgent
+
+- type: npcFaction
   id: InitialInfected
   friendly:
   - Zombie
@@ -48,10 +114,10 @@
   - Wizard
   - Xenoborg
   hostile:
-  - Insurgent
   - Changeling
   - Heretic
   - Blob
+  - BloodCult
   - Shadowling
   - PirateFaction
   - NanoTrasen
@@ -67,6 +133,7 @@
   - Changeling
   - Heretic
   - Blob
+  - BloodCult
   - Shadowling
   - PirateFaction
   - Wraith
@@ -88,3 +155,4 @@
   - CrabFaction
   - Assistant
   - DevilFaction
+  - Monkey

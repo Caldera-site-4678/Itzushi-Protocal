@@ -60,7 +60,7 @@
   - type: ExplosionResistance
     damageCoefficient: 0.4
   - type: FireProtection
-    reduction: 0.2
+    reduction: 1
   - type: FaceHuggerBlocker
 
 - type: entity
@@ -92,3 +92,20 @@
   - type: Clothing
     sprite: _Trauma/Clothing/Head/Misc/mamluk.rsi
   - type: FaceHuggerBlocker
+
+- type: entity
+  parent: ClothingHeadHelmetBase
+  id: ClothingHeadHelmetCsij
+  name: CSIJ biosuit hood
+  description: A suit of writhing flesh that- wait no that's foam.
+  components:
+  - type: Sprite
+    sprite: _Trauma/Clothing/Head/Misc/csijlevelv.rsi
+  - type: Clothing
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+  - type: NoirOverlay
+  - type: IdentityBlocker
+  - type: ViewconeModifier
+    angleModifier: 0.5

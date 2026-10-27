@@ -2,6 +2,7 @@
 
 using Content.Shared.Polymorph;
 using Robust.Shared.Random;
+using System.Linq;
 using System.Text;
 
 namespace Content.Trauma.Shared.Genetics.Mutations;
@@ -11,18 +12,12 @@ public sealed partial class ScannedGenomeSystem : EntitySystem
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private MutationSystem _mutation = default!;
     [Dependency] private EntityQuery<MutatableComponent> _mutatableQuery = default!;
+    [Dependency] private EntityQuery<MutationComponent> _mutationQuery = default!;
     [Dependency] private EntityQuery<ScannedGenomeComponent> _query = default!;
 
     private StringBuilder _builder = new();
 
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        SubscribeLocalEvent<ScannedGenomeComponent, PolymorphedEvent>(OnPolymorphed);
-        SubscribeLocalEvent<ScannedGenomeComponent, MutationRemovedEvent>(OnMutationRemoved);
-    }
-
+    [SubscribeLocalEvent]
     private void OnPolymorphed(Entity<ScannedGenomeComponent> ent, ref PolymorphedEvent args)
     {
         var target = args.NewEntity;
@@ -34,6 +29,17 @@ public sealed partial class ScannedGenomeSystem : EntitySystem
         TransferSequences(ent, (target, comp));
     }
 
+    [SubscribeLocalEvent]
+    private void OnMutationAdded(Entity<ScannedGenomeComponent> ent, ref MutationAddedEvent args)
+    {
+        if (ent.Owner != args.Target.Owner || args.Automatic)
+            return;
+
+        // new mutation added to an already scanned subject, create a sequence for it
+        TryAddSequence(ent.AsNullable(), args.Id, args.Mutation.Comp);
+    }
+
+    [SubscribeLocalEvent]
     private void OnMutationRemoved(Entity<ScannedGenomeComponent> ent, ref MutationRemovedEvent args)
     {
         // check just incase you are VERY evil and have a mutation that is a mob or something crazy
@@ -66,11 +72,11 @@ public sealed partial class ScannedGenomeSystem : EntitySystem
             TryAddSequence(ent, id);
         }
 
-        foreach (var (id, _) in mutatable.Mutations)
+        foreach (var (id, uid) in mutatable.Mutations)
         {
             // only add non-dormant so they aren't duplicated
             if (_mutation.IsForeign(mutatable, id))
-                TryAddSequence(ent, id);
+                TryAddSequence(ent, id, _mutationQuery.CompOrNull(uid)); // use the entity's data incase it changed the difficulty
         }
     }
 
@@ -87,14 +93,17 @@ public sealed partial class ScannedGenomeSystem : EntitySystem
     /// <summary>
     /// Adds a randomly generated sequence for a given mutation to the given genome.
     /// </summary>
-    public void TryAddSequence(Entity<ScannedGenomeComponent?> ent, EntProtoId<MutationComponent> id)
+    public void TryAddSequence(Entity<ScannedGenomeComponent?> ent, EntProtoId<MutationComponent> id, MutationComponent? mutation = null)
     {
         if (!_query.Resolve(ent, ref ent.Comp) ||
-            !_mutation.AllMutations.TryGetValue(id, out var mutation) ||
-            _mutation.GetRoundData(id) is not {} data)
+            _mutation.GetRoundData(id) is not {} data ||
+            ent.Comp.Sequences.Any(s => s.Mutation == id)) // no dupes
         {
             return;
         }
+
+        if (mutation == null && !_mutation.AllMutations.TryGetValue(id, out mutation))
+            return; // bad id
 
         // discovered sequences have no missing bases
         if (data.Discovered)
@@ -116,7 +125,7 @@ public sealed partial class ScannedGenomeSystem : EntitySystem
         // exactly what it is by grepping the mutations :)
         var difficulty = mutation.Difficulty;
         difficulty += _random.Next(-2, 2);
-        difficulty = Math.Clamp(difficulty, 0, MutationData.BaseCount);
+        difficulty = Math.Clamp(difficulty, 2, MutationData.BaseCount);
 
         // chance of Xing out a whole pair goes up with difficulty
         // so you are less likely to get free easy fixes

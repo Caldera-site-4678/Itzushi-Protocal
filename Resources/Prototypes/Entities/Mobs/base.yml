@@ -85,31 +85,7 @@
   - type: Damageable
   - type: Injurable
     damageContainer: Biological
-  - type: Destructible
-    thresholds:
-    # <Trauma> - upstream removed gibbing lol
-    - trigger:
-        !type:DamageTypeTrigger
-        damageType: Blunt
-        damage: 400
-      behaviors:
-      - !type:GibBehavior
-    # </Trauma>
-    - trigger:
-        !type:DamageTypeTrigger
-        damageType: Radiation
-        damage: 15
-      behaviors:
-      - !type:PopupBehavior
-        popup: mouth-taste-metal
-        popupType: LargeCaution
-        targetOnly: true
-    - trigger:
-        !type:DamageTypeTrigger
-        damageType: Radiation
-        damage: 40
-      behaviors:
-      - !type:VomitBehavior
+  - type: DamageOverlay
   - type: RadiationReceiver
   - type: Stamina
   - type: StunVisuals
@@ -150,6 +126,59 @@
   - type: GhostOnMove
     mustBeDead: true
 
+# Used for mobs that apply the popup and vomit from radiation
+- type: entity
+  abstract: true
+  id: BaseMobIrradiated
+  components:
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTypeTrigger
+        damageType: Radiation
+        damage: 15
+      behaviors:
+      - !type:PopupBehavior
+        popup: mouth-taste-metal
+        popupType: LargeCaution
+        targetOnly: true
+    - trigger:
+        !type:DamageTypeTrigger
+        damageType: Radiation
+        damage: 40
+      behaviors:
+      - !type:VomitBehavior
+
+# Used as a simple default for mob destruction
+- type: entity
+  abstract: true
+  parent: BaseMobIrradiated
+  id: BaseMobDestructible
+  components:
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTypeTrigger
+        damageType: Blunt
+        damage: 400
+      behaviors:
+      - !type:GibBehavior { }
+    - trigger:
+        !type:DamageTypeTrigger
+        damageType: Heat
+        damage: 1500
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawnInContainer: true
+        spawn:
+          Ash:
+            min: 1
+            max: 1
+      - !type:BurnBodyBehavior
+      - !type:PlaySoundBehavior
+        sound:
+          collection: MeatLaserImpact
+
 # Used for mobs that can enter combat mode and can attack.
 - type: entity
   save: false
@@ -176,8 +205,6 @@
   components:
   - type: AtmosExposed
   - type: Temperature
-    currentTemperature: 310.15
-    specificHeat: 42
   - type: TemperatureDamage
     heatDamageThreshold: 325
     coldDamageThreshold: 0
@@ -211,9 +238,6 @@
     shiveringHeatRegulation: 500
     normalBodyTemperature: 310.15
     thermalRegulationTemperatureThreshold: 2
-  - type: Temperature
-    currentTemperature: 310.15
-    specificHeat: 42
   - type: TemperatureDamage
     heatDamageThreshold: 325
     coldDamageThreshold: 260
@@ -239,7 +263,7 @@
     canResistFire: true
     damage: #per second, scales with number of fire 'stacks'
       types:
-        Heat: 0.1 # Trauma, 10% fire damage to fix issues with limb damage, was 1.5
+        Heat: 0.3 # Trauma, was 1.5 - 0.2x multiplier to compensate for limb damage
   - type: FireVisuals
     sprite: Mobs/Effects/onfire.rsi
     normalState: Generic_mob_burning
@@ -275,3 +299,15 @@
     bloodlossHealDamage:
       types:
         Bloodloss: -1
+
+# Used for mobs that should slightly see in the dark
+- type: entity
+  save: false
+  id: MobNightVision
+  abstract: true
+  components:
+  - type: NightVision
+    action: ActionToggleNightVision # Trauma
+    prioritized: false
+    relayOverlay: false # In case default value ever changes
+    lightingColor: '#FFFFFF33' # Basically makes it impossible for things to be "Pitch black" but can still be dark. # Trauma - was "#FFFFFF15"

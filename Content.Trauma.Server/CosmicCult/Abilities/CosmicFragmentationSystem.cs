@@ -1,47 +1,40 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-using Content.Server.Actions;
-using Content.Server.Antag;
-using Content.Server.Popups;
-using Content.Shared.Mobs;
-using Content.Shared.Mobs.Components;
+using Content.Shared.Actions;
+using Content.Shared.Antag;
 using Content.Shared.NPC;
+using Content.Shared.Popups;
 using Content.Shared.Radio;
 using Content.Shared.Radio.Components;
 using Content.Shared.Silicons.Borgs.Components;
 using Content.Shared.Silicons.Laws.Components;
+using Content.Shared.Station.Components;
+using Content.Shared.Station.Systems;
 using Content.Trauma.Common.Silicon;
 using Content.Trauma.Shared.CosmicCult;
 using Content.Trauma.Shared.CosmicCult.Components;
-using Content.Trauma.Shared.Silicons;
 using Robust.Shared.Containers;
 
 namespace Content.Trauma.Server.CosmicCult.Abilities;
 
+// TODO: predict this shit
 public sealed partial class CosmicFragmentationSystem : EntitySystem
 {
     [Dependency] private AntagSelectionSystem _antag = default!;
     [Dependency] private CosmicCultSystem _cult = default!;
     [Dependency] private CosmicCultRuleSystem _cultRule = default!;
-    [Dependency] private PopupSystem _popup = default!;
+    [Dependency] private SharedActionsSystem _actions = default!;
     [Dependency] private SharedContainerSystem _container = default!;
-    [Dependency] private ActionsSystem _actions = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private SharedMapSystem _map = default!;
+    [Dependency] private StationSystem _station = default!;
 
-    private ProtoId<RadioChannelPrototype> _cultRadio = "CosmicRadio";
+    private static readonly EntProtoId CosmicBorgChantry = "CosmicBorgChantry";
+    private static readonly EntProtoId CosmicCultLawBoard = "CosmicCultLawBoard";
+    private static readonly ProtoId<RadioChannelPrototype> CultRadio = "CosmicRadio";
 
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        SubscribeLocalEvent<SiliconLawUpdaterComponent, AILawUpdatedEvent>(OnLawInserted);
-
-        SubscribeLocalEvent<BorgChassisComponent, MalignFragmentationEvent>(OnFragmentBorg);
-        SubscribeLocalEvent<SiliconLawUpdaterComponent, MalignFragmentationEvent>(OnFragmentAi);
-
-        SubscribeLocalEvent<CosmicCultComponent, EventCosmicFragmentation>(OnCosmicFragmentation);
-    }
-
-    private void OnCosmicFragmentation(Entity<CosmicCultComponent> ent, ref EventCosmicFragmentation args)
+    [SubscribeLocalEvent]
+    private void OnCosmicFragmentation(Entity<CosmicCultComponent> ent, ref CosmicFragmentationEvent args)
     {
         if (args.Handled || HasComp<ActiveNPCComponent>(args.Target))
         {
@@ -59,6 +52,7 @@ public sealed partial class CosmicFragmentationSystem : EntitySystem
         _actions.RemoveAction(ent.Owner, args.Action.Owner);
     }
 
+    [SubscribeLocalEvent]
     private void OnFragmentBorg(Entity<BorgChassisComponent> ent, ref MalignFragmentationEvent args)
     {
         if (_cultRule.AssociatedGamerule(args.User) is { } cult && Exists(cult.Comp.ActiveChantry))
@@ -68,7 +62,27 @@ public sealed partial class CosmicFragmentationSystem : EntitySystem
             return;
         }
 
-        var chantry = Spawn("CosmicBorgChantry", Transform(ent).Coordinates);
+        var xform = Transform(ent);
+
+        // No chantry in space
+        if (xform.GridUid is not { } gridUid)
+        {
+            _popup.PopupEntity(Loc.GetString("cosmicability-chantry-spawn-error-grid"), ent, ent);
+            args.Canceled = true;
+            return;
+        }
+
+        // No chantry on cargo shuttle
+        if (_station.GetStationInMap(xform.MapID) is not { } station ||
+            !TryComp<StationDataComponent>(station, out var stationComp) ||
+            !stationComp.OwnedGrids.Contains(gridUid))
+        {
+            _popup.PopupEntity(Loc.GetString("cosmicability-chantry-spawn-error-station"), ent, ent);
+            args.Canceled = true;
+            return;
+        }
+
+        var chantry = Spawn(CosmicBorgChantry, Transform(ent).Coordinates);
         EnsureComp<CosmicChantryComponent>(chantry, out var chantryComponent);
         chantryComponent.Container = _container.EnsureContainer<ContainerSlot>(chantry, chantryComponent.ContainerId);
         _container.Insert(ent.Owner, chantryComponent.Container);
@@ -79,30 +93,34 @@ public sealed partial class CosmicFragmentationSystem : EntitySystem
         _antag.SendBriefing(victim, Loc.GetString("cosmiccult-silicon-chantry-briefing", ("minutesandseconds", $"{mins} minutes and {secs} seconds")), Color.FromHex("#4cabb3"), null);
     }
 
+    [SubscribeLocalEvent]
     private void OnFragmentAi(Entity<SiliconLawUpdaterComponent> ent, ref MalignFragmentationEvent args)
     {
-        var lawboard = Spawn("CosmicCultLawBoard", Transform(args.Target).Coordinates);
+        var lawboard = Spawn(CosmicCultLawBoard, Transform(args.Target).Coordinates);
         _container.TryGetContainer(args.Target, "circuit_holder", out var container);
         if (container == null)
             return;
+
         _container.EmptyContainer(container, true);
         _container.Insert(lawboard, container, Transform(args.Target), true);
     }
 
+    [SubscribeLocalEvent]
     private void OnLawInserted(Entity<SiliconLawUpdaterComponent> ent, ref AILawUpdatedEvent args)
     {
         if (!TryComp<IntrinsicRadioTransmitterComponent>(ent, out var radio) || !TryComp<ActiveRadioComponent>(ent, out var transmitter))
             return;
+
         if (ent.Comp.LastLawset.Id == "CosmicCultLaws")
         {
-            radio.Channels.Add(_cultRadio);
-            transmitter.Channels.Add(_cultRadio);
+            radio.Channels.Add(CultRadio);
+            transmitter.Channels.Add(CultRadio);
             _antag.SendBriefing(ent, Loc.GetString("cosmiccult-silicon-subverted-briefing"), Color.FromHex("#4cabb3"), null);
         }
         else
         {
-            radio.Channels.Remove(_cultRadio);
-            transmitter.Channels.Remove(_cultRadio);
+            radio.Channels.Remove(CultRadio);
+            transmitter.Channels.Remove(CultRadio);
         }
     }
 }

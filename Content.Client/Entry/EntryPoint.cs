@@ -25,8 +25,6 @@ using Content.Client.UserInterface;
 using Content.Client.Viewport;
 using Content.Client.Voting;
 using Content.Shared.Ame.Components;
-using Content.Shared.FeedbackSystem;
-using Content.Shared.Gravity;
 using Content.Shared.Localizations;
 using Robust.Client;
 using Robust.Client.Graphics;
@@ -106,7 +104,6 @@ namespace Content.Client.Entry
 
             _prototypeManager.RegisterIgnore("utilityQuery");
             _prototypeManager.RegisterIgnore("utilityCurvePreset");
-            _prototypeManager.RegisterIgnore("accent");
             _prototypeManager.RegisterIgnore("gasReaction");
             _prototypeManager.RegisterIgnore("seed"); // Seeds prototypes are server-only.
             _prototypeManager.RegisterIgnore("objective");
@@ -128,10 +125,6 @@ namespace Content.Client.Entry
             _prototypeManager.RegisterIgnore("alertLevels");
             _prototypeManager.RegisterIgnore("nukeopsRole");
             _prototypeManager.RegisterIgnore("ghostRoleRaffleDecider");
-            _prototypeManager.RegisterIgnore("codewordGenerator");
-            _prototypeManager.RegisterIgnore("codewordFaction");
-            _prototypeManager.RegisterIgnore("story"); // Goobstation
-            _prototypeManager.RegisterIgnore("storyBeat"); // Goobstation
 
             _componentFactory.GenerateNetIds();
             _adminManager.Initialize();

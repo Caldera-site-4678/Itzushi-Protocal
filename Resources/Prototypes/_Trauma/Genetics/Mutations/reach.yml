@@ -24,11 +24,12 @@
   name: Use Telekinesis
   description: Move an object using the power of your mind!
   components:
+  - type: Sprite
+    sprite: Mobs/Species/Human/organs.rsi
+    layers:
+    - state: brain
   - type: Action
     raiseOnUser: true
-    icon:
-      sprite: Mobs/Species/Human/organs.rsi
-      state: brain
     itemIconStyle: BigAction
     useDelay: 1
   - type: TargetAction
@@ -68,7 +69,6 @@
       partType: Arm
       effects:
       - !type:AddComponents
-        guidebookText: entity-effect-guidebook-increases-reach
         conditions:
         - !type:WhitelistCondition # has to be an organic arm
           blacklist:
@@ -83,6 +83,5 @@
       partType: Arm
       effects:
       - !type:RemoveComponents
-        guidebookText: entity-effect-guidebook-decreases-reach
         components:
         - type: ExtraReach

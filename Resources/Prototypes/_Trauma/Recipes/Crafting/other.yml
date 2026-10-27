@@ -9,10 +9,10 @@
   useQuality: false
 
 - type: construction
+  parent: BaseRev
   id: PowerArmorStand
   graph: PowerArmorStand
   targetNode: PowerArmorStand
-  category: construction-category-antagonist
   objectType: Item
   theory:
     RevolutionaryKnowledge: 3
@@ -91,3 +91,14 @@
   parent: BaseRepairItem
   id: Whetstone
   graph: Whetstone
+
+- type: construction
+  id: ClothingBeltShankerBelt
+  graph: ClothingBeltShankerBelt
+  targetNode: Shanker
+  category: construction-category-clothing
+  objectType: Item
+  theory:
+    FabricationKnowledge: 1
+  practical:
+    TailoringKnowledge: 1

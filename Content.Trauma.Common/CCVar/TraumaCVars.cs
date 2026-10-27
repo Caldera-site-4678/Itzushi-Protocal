@@ -21,6 +21,12 @@ public sealed partial class TraumaCVars
     public static readonly CVarDef<bool> NoVisionFilters =
         CVarDef.Create("accessibility.no_vision_filters", false, CVar.CLIENTONLY | CVar.ARCHIVE);
 
+    /// <summary>
+    /// Enables camera noise from radiation.
+    /// </summary>
+    public static readonly CVarDef<bool> NoRadiationNoise =
+        CVarDef.Create("accessibility.no_radiation_noise", false, CVar.CLIENTONLY | CVar.ARCHIVE);
+
     #endregion
 
     #region AudioMuffle
@@ -72,42 +78,6 @@ public sealed partial class TraumaCVars
 
     #region Skills
 
-    /// <summary>
-    /// Enables gaining XP and skills during rounds.
-    /// Character starting skills are not affected by this.
-    /// </summary>
-    public static readonly CVarDef<bool> SkillGain =
-        CVarDef.Create("trauma.skill_gain", true, CVar.SERVER | CVar.REPLICATED);
-
-    /// <summary>
-    /// Client setting to hide all skill-related popups.
-    /// </summary>
-    public static readonly CVarDef<bool> SkillPopups =
-        CVarDef.Create("trauma.skill_popups", true, CVar.CLIENTONLY | CVar.ARCHIVE);
-
-    #endregion
-
-    #region Chat
-
-    /// <summary>
-    /// Whether to play a sound when a highlighted message is received.
-    /// </summary>
-    public static readonly CVarDef<bool> ChatHighlightSound =
-        CVarDef.Create("chat.highlight_sound", true, CVar.ARCHIVE | CVar.CLIENTONLY);
-
-    /// <summary>
-    /// Volume of the highlight sound when a highlighted message is received.
-    /// </summary>
-    public static readonly CVarDef<float> ChatHighlightVolume =
-        CVarDef.Create("chat.highlight_volume", 1f, CVar.ARCHIVE | CVar.CLIENTONLY);
-
-    /// <summary>
-    /// You get instantly banned if you say something matching this regex in any chat channel.
-    /// The regex is case insensitive.
-    /// </summary>
-    public static readonly CVarDef<string> GamerWordsRegex =
-        CVarDef.Create("chat.gamer_words_regex", string.Empty, CVar.SERVER);
-
     #endregion
 
     #region Webhooks
@@ -117,14 +87,14 @@ public sealed partial class TraumaCVars
     /// Disabled if this is empty.
     /// </summary>
     public static readonly CVarDef<string> ErrorWebhookUrl =
-        CVarDef.Create("trauma.error_webhook_url", string.Empty, CVar.SERVER);
+        CVarDef.Create("trauma.error_webhook_url", string.Empty, CVar.SERVERONLY | CVar.CONFIDENTIAL);
 
     /// <summary>
     /// Delay between each error message in seconds.
     /// Used to avoid hitting ratelimits
     /// </summary>
     public static readonly CVarDef<float> ErrorWebhookDelay =
-        CVarDef.Create("trauma.error_webhook_delay", 0.3f, CVar.SERVER);
+        CVarDef.Create("trauma.error_webhook_delay", 0.3f, CVar.SERVERONLY);
 
     /// <summary>
     /// How many messages can be queued at once.
@@ -132,7 +102,7 @@ public sealed partial class TraumaCVars
     /// Changing this ingame drops all currently queued messages.
     /// </summary>
     public static readonly CVarDef<int> ErrorWebhookLimit =
-        CVarDef.Create("trauma.error_webhook_limit", 64, CVar.SERVER);
+        CVarDef.Create("trauma.error_webhook_limit", 64, CVar.SERVERONLY);
 
     #endregion
 

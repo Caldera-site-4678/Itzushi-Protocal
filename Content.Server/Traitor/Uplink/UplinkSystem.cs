@@ -1,3 +1,6 @@
+// <Trauma>
+using Content.Trauma.Common.Traitor;
+// </Trauma>
 using System.Linq;
 using Content.Server.PDA.Ringer;
 using Content.Server.Store.Systems;
@@ -19,7 +22,6 @@ public sealed partial class UplinkSystem : EntitySystem
 {
     [Dependency] private InventorySystem _inventorySystem = default!;
     [Dependency] private SharedHandsSystem _handsSystem = default!;
-    [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private StoreSystem _store = default!;
     [Dependency] private SharedSubdermalImplantSystem _subdermalImplant = default!;
     [Dependency] private SharedMindSystem _mind = default!;
@@ -51,6 +53,13 @@ public sealed partial class UplinkSystem : EntitySystem
                 continue;
 
             entity.Comp.Store = uid;
+            // <Trauma>
+            if (mind != null)
+            {
+                var ev = new UplinkRelinkedEvent(uid, entity.Owner, mind.Value);
+                RaiseLocalEvent(ref ev);
+            }
+            // </Trauma>
             return;
         }
 
@@ -58,6 +67,11 @@ public sealed partial class UplinkSystem : EntitySystem
         entity.Comp.Store = Spawn(TraitorUplinkStore, MapCoordinates.Nullspace);
         SetUplink(args.Implanted, entity.Comp.Store.Value, 0, false);
         //Log.Error($"{ToPrettyString(args.Implanted)} did not have an uplink when they were implanted."); // Trauma - implanting a non-traitor isnt an error
+
+        // <Trauma>
+        var ev2 = new UplinkCreatedEvent(args.Implanted, entity.Comp.Store.Value, entity.Owner);
+        RaiseLocalEvent(ref ev2);
+        // </Trauma>
     }
 
     /// <summary>
@@ -130,6 +144,11 @@ public sealed partial class UplinkSystem : EntitySystem
 
         SetUplink(user, storeEntity, balance, giveDiscounts);
 
+        // <Trauma>
+        var ev2 = new UplinkCreatedEvent(user, storeEntity, uplinkEntity.Value);
+        RaiseLocalEvent(ref ev2);
+        // </Trauma>
+
         return true;
     }
 
@@ -146,7 +165,7 @@ public sealed partial class UplinkSystem : EntitySystem
         storeComp.AccountOwner = mind;
 
         storeComp.Balance.Clear();
-        _store.TryAddCurrency(new Dictionary<string, FixedPoint2> { { TelecrystalCurrencyPrototype, balance } },
+        _store.TryAddCurrency(new() { { TelecrystalCurrencyPrototype, balance } },
             store,
             storeComp);
 
@@ -164,7 +183,7 @@ public sealed partial class UplinkSystem : EntitySystem
     /// </summary>
     public bool TryImplantUplink(EntityUid user, EntityUid storeEntity, FixedPoint2 balance, bool giveDiscounts)
     {
-        if (!_proto.Resolve(FallbackUplinkCatalog, out var catalog))
+        if (!ProtoMan.Resolve(FallbackUplinkCatalog, out var catalog))
             return false;
 
         if (!catalog.Cost.TryGetValue(TelecrystalCurrencyPrototype, out var cost))

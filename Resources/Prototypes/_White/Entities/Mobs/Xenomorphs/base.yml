@@ -11,6 +11,8 @@
   id: BaseMobXenomorph
   abstract: true
   components:
+  - type: LanguageHivemind
+    language: XenoHivemind
   - type: Xenomorph
     weedHeal:
       types:
@@ -81,7 +83,7 @@
   - type: Injurable
     damageContainer: Biological
   - type: Stamina
-    baseCritThreshold: 500
+    baseCritThreshold: 200
   - type: Fixtures
     fixtures:
       fix1:
@@ -120,8 +122,7 @@
     proto: alien
   - type: AtmosExposed
   - type: Temperature
-    currentTemperature: 310.15
-    specificHeat: 42
+    temperature: 310.15
   - type: TemperatureDamage
     heatDamageThreshold: 600
     coldDamageThreshold: 100 # Trauma, was -150
@@ -143,20 +144,15 @@
     speechSounds: Xenomorph
     speechVerb: SmallMob
   - type: Vocal
-    sounds:
-      Male: Xenomorph
-      Female: Xenomorph
-      Unsexed: Xenomorph
+    emoteSounds: Xenomorph
   - type: LanguageSpeaker
     speaks:
     - Xeno
-#    - XenoHivemind # Goobstation - collective mind
     understands:
     - Xeno
-#    - XenoHivemind # Goobstation - collective mind
     - Hissing
     - Draconic
-  - type: CollectiveMind # Goobstation
+  - type: CollectiveMind
     defaultChannel: Xenomorphivemind
     channels:
     - Xenomorphivemind
@@ -164,22 +160,24 @@
   - type: Emoting
   - type: BodyEmotes
     soundsId: GeneralBodyEmotes
-  - type: Access # Goobstation - xeno doors
+  - type: Access
     enabled: true
     groups:
     - XenomorphAccess
-  - type: BloodSplatterer # Trauma
+  - type: BloodSplatterer
   - type: KnowledgeGrant
     skills:
       ThrowingKnowledge: 50
-      StrengthKnowledge: 50
-
 
 - type: entity
   parent: [BaseMobXenomorph, StripableInventoryBase]
   id: BaseMobXenomorphAdult
   abstract: true
   components:
+  - type: MovementSpeedModifier
+    baseWeightlessAcceleration: 1.7
+    baseWeightlessFriction: 1
+    baseWeightlessModifier: 1
   - type: FootstepModifier
     footstepSoundCollection:
       collection: FootstepXenomorph
@@ -194,7 +192,6 @@
   - type: ShowHealthIcons
   - type: Puller
     needsHands: false
-    startingGrabStage: Hard
   - type: IdExaminable
   - type: Inventory
     templateId: xenomorph
@@ -214,7 +211,10 @@
     tags:
     - DoorBumpOpener
     - FootstepSound
-  - type: MovementAlwaysTouching # Trauma
+  - type: XenomorphShoveTracker
+    shoveThreshold: 3
+    knockdownDuration: 7
+  - type: MovementAlwaysTouching
 
 - type: entity
   id: BaseMobXenomorphDungeon
@@ -247,7 +247,7 @@
   id: BaseXenoTailed
   components:
   - type: TailedEntity
-    amount: 17
+    amount: 11
     spacing: 0.170
     prototype: MobXenomorphTailSegmentBase
     tailOffset: 0, -0.13

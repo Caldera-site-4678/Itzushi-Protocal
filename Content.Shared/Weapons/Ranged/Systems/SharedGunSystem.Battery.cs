@@ -3,6 +3,7 @@ using Content.Shared.Damage.Events;
 using Content.Shared.Examine;
 using Content.Shared.Projectiles;
 using Content.Shared.Power;
+using Content.Shared.Power.EntitySystems;
 using Content.Shared.PowerCell;
 using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Ranged.Components;
@@ -14,6 +15,8 @@ namespace Content.Shared.Weapons.Ranged.Systems;
 
 public abstract partial class SharedGunSystem
 {
+    [Dependency] private SharedBatterySystem _battery = default!;
+
     protected virtual void InitializeBattery()
     {
         SubscribeLocalEvent<BatteryAmmoProviderComponent, ComponentStartup>(OnBatteryStartup);
@@ -34,11 +37,11 @@ public abstract partial class SharedGunSystem
 
     private void OnBatteryDamageExamine(Entity<BatteryAmmoProviderComponent> ent, ref DamageExamineEvent args)
     {
-        var proto = ProtoManager.Index<EntityPrototype>(ent.Comp.Prototype);
+        var proto = ProtoMan.Index<EntityPrototype>(ent.Comp.Prototype);
         DamageSpecifier? damageSpec = null;
         var damageType = string.Empty;
 
-        if (proto.TryGetComponent<ProjectileComponent>(out var projectileComp, Factory))
+        if (proto.TryComp<ProjectileComponent>(out var projectileComp, Factory))
         {
             if (!projectileComp.Damage.Empty)
             {
@@ -46,7 +49,7 @@ public abstract partial class SharedGunSystem
                 damageSpec = projectileComp.Damage * Damageable.UniversalProjectileDamageModifier;
             }
         }
-        else if (proto.TryGetComponent<HitscanBasicDamageComponent>(out var hitscanComp, Factory))
+        else if (proto.TryComp<HitscanBasicDamageComponent>(out var hitscanComp, Factory))
         {
             if (!hitscanComp.Damage.Empty)
             {
@@ -86,7 +89,7 @@ public abstract partial class SharedGunSystem
         }
         // </Trauma>
 
-        TakeCharge(ent, shots * args.FireCostMultiplier); // Trauma - FireCostMultiplier
+        TakeCharge(ent, ent.Comp.FireCost * args.FireCostMultiplier * shots); // Trauma - use FireCostMultiplier
     }
 
     private void OnBatteryAmmoCount(Entity<BatteryAmmoProviderComponent> ent, ref GetAmmoCountEvent args)
@@ -95,20 +98,23 @@ public abstract partial class SharedGunSystem
         args.Capacity = (int) (ent.Comp.CapacityFloat / args.FireCostMultiplier); // Trauma - use CapacityFloat and FireCostMultiplier
     }
 
+    /// <inhereitdoc cref="TakeCharge(EntityUid,float,int)"/>
+    public void TakeCharge(Entity<BatteryAmmoProviderComponent> ent, int shots = 1)
+    {
+        TakeCharge(ent, ent.Comp.FireCost, shots);
+    }
+
     /// <summary>
     /// Use up the required amount of battery charge for firing.
     /// </summary>
-    public void TakeCharge(Entity<BatteryAmmoProviderComponent> ent, float shots = 1f) // Trauma - int -> float
+    public void TakeCharge(EntityUid gun, float fireCost, int shots = 1)
     {
-        // Take charge from either the BatteryComponent or PowerCellSlotComponent.
-        var ev = new ChangeChargeEvent(-ent.Comp.FireCost * shots);
-        RaiseLocalEvent(ent, ref ev);
+        _battery.ChangeCharge(gun, -fireCost * shots);
         // UpdateShots is already called by the resulting ChargeChangedEvent
     }
 
     private (EntityUid? Entity, IShootable) GetShootable(BatteryAmmoProviderComponent component, EntityCoordinates coordinates)
     {
-
         var ent = PredictedSpawnAtPosition(component.Prototype, coordinates); // Trauma - predict this shit
         return (ent, EnsureShootable(ent));
     }
@@ -144,6 +150,7 @@ public abstract partial class SharedGunSystem
         // <Trauma> - newShots -> ent.Comp.Shots; newCapacity -> ent.Comp.Capacity
         // Update the visuals.
         Appearance.SetData(ent.Owner, AmmoVisuals.HasAmmo, ent.Comp.Shots != 0, appearance);
+        Appearance.SetData(ent.Owner, AmmoVisuals.IsFull, ent.Comp.Shots == ent.Comp.Capacity, appearance);
         Appearance.SetData(ent.Owner, AmmoVisuals.AmmoCount, ent.Comp.Shots, appearance);
         if (ent.Comp.Capacity > 0) // Don't make the capacity 0 when removing a power cell as this will make it be visualized as full instead of empty.
             Appearance.SetData(ent.Owner, AmmoVisuals.AmmoMax, ent.Comp.Capacity, appearance);
@@ -204,10 +211,9 @@ public abstract partial class SharedGunSystem
     /// </summary>
     public (int, int) GetShots(Entity<BatteryAmmoProviderComponent> ent)
     {
-        var ev = new GetChargeEvent();
-        RaiseLocalEvent(ent, ref ev);
-        var currentShots = (int)(ev.CurrentCharge / ent.Comp.FireCost);
-        var maxShots = (int)(ev.MaxCharge / ent.Comp.FireCost);
+        var charge = _battery.GetCharge(ent);
+        var currentShots = (int)(charge.Charge / ent.Comp.FireCost);
+        var maxShots = (int)(charge.MaxCharge / ent.Comp.FireCost);
 
         return (currentShots, maxShots);
     }

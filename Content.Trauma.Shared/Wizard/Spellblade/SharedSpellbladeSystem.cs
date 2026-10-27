@@ -8,7 +8,8 @@ using Content.Shared.Electrocution;
 using Content.Shared.Examine;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.StatusEffectNew;
-using Content.Shared.Timing;
+using Content.Shared.Timing.Components;
+using Content.Shared.Timing.Systems;
 using Content.Shared.UserInterface;
 using Content.Shared.Weapons.Melee;
 using Content.Trauma.Common.Wizard;
@@ -21,7 +22,6 @@ public abstract partial class SharedSpellbladeSystem : CommonSpellbladeSystem
 {
     [Dependency] protected UseDelaySystem UseDelay = default!;
     [Dependency] protected SharedAudioSystem Audio = default!;
-    [Dependency] private IPrototypeManager _protoManager = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
 
     public static readonly EntProtoId StatusEffectStunned = "StatusEffectStunned";
@@ -160,7 +160,7 @@ public abstract partial class SharedSpellbladeSystem : CommonSpellbladeSystem
         if (comp.EnchantmentName != null)
             return;
 
-        if (!_protoManager.TryIndex(args.ProtoId, out var proto))
+        if (!ProtoMan.TryIndex(args.ProtoId, out var proto))
             return;
 
         Audio.PlayPredicted(comp.EnchantSound, uid, args.Actor);

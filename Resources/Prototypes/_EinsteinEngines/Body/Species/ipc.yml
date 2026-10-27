@@ -59,6 +59,7 @@
 ## Mob
 
 - type: entity
+  categories: [ HideSpawnMenu ]
   parent: BaseSpeciesAppearance
   id: AppearanceIPC
   name: IPC appearance
@@ -85,6 +86,11 @@
   - type: HumanoidProfile
     species: IPC
   - type: KnowledgeHolder
+  - type: AnimatedEmotesBlacklist
+    blacklist:
+    - Cry
+    - Blush
+    - Tongue
 
 - type: entity
   parent:
@@ -92,6 +98,7 @@
   - MobFlammable
   - BaseSpeciesMob
   id: MobIPC
+  name: Urist McPositronic
   components:
   - type: LanguageSpeaker
     speaks:
@@ -170,7 +177,6 @@
     guides:
     - IPC
   - type: Silicon
-    entityType: enum.SiliconType.Player
     batteryPowered: true
     drainPerSecond: 1.5
     chargeThresholdMid: 0.80
@@ -226,10 +232,28 @@
         - MobMask
         layer:
         - MobLayer
+  - type: Reactive
+    groups:
+      Flammable: [ Touch ]
+      Extinguish: [ Touch ]
+    reactions:
+    - reagents: [ Water, SpaceCleaner ]
+      methods: [ Touch ]
+      effects:
+      - !type:WashCreamPie
+    - reagents: [ Water ]
+      methods: [ Touch ]
+      effects:
+      - !type:Jitter
+      - !type:HealthChange
+        ignoreResistances: true
+        splitDamage: Split
+        damage:
+          types:
+            Shock: 1.5
   - type: Temperature
-    currentTemperature: 310.15 # 310K is the standard operating temperature of a home circuit breaker
-    specificHeat: 42
-    atmosTemperatureTransferEfficiency: 0.05
+    specificHeat: 300
+    temperature: 310.15 # 310K is the standard operating temperature of a home circuit breaker
   - type: TemperatureDamage
     heatDamageThreshold: 450 # Wanted to do 363.15 for le realism, but reptiles have 400K limit which is ????
     coldDamageThreshold: 260
@@ -245,6 +269,8 @@
     needsCritical: false
   - type: SurgeryTarget
     sepsisImmune: true
+  - type: IntellicardableMind # recovery mode
+    downloadTimeFactor: 1.2
   - type: Tag
     tags:
     - SiliconMob
@@ -300,8 +326,7 @@
     bleedingOverlay: null
     damageGroupColors:
       Brute: "#DD8822"
-  - type: Woundable
-    boneEntity: null
+  - type: Boneless
 
 ## Parts
 

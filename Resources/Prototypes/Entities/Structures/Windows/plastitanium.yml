@@ -83,6 +83,11 @@
   components:
   - type: ExaminableDamage
     messages: null
+  - type: Tag
+    tags:
+    - ForceFixRotations
+    - Window
+    - SmeltingImmune
 
 - type: entity
   id: PlastitaniumWindow
@@ -91,12 +96,6 @@
   components:
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
-        damage: 1000
-      behaviors:
-      - !type:DoActsBehavior
-        acts: [ "Destruction" ]
     - trigger:
         !type:DamageTrigger
         damage: 500
@@ -178,6 +177,11 @@
   components:
   - type: ExaminableDamage
     messages: null
+  - type: Tag
+    tags:
+    - ForceFixRotations
+    - Window
+    - SmeltingImmune
 
 - type: entity
   id: PlastitaniumWindowDiagonal
@@ -187,12 +191,6 @@
   components:
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
-        damage: 1000
-      behaviors:
-      - !type:DoActsBehavior
-        acts: [ "Destruction" ]
     - trigger:
         !type:DamageTrigger
         damage: 500

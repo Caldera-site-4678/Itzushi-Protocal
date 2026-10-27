@@ -125,6 +125,7 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
         var (banDef, expires) = await CreateBanDef(banInfo, BanType.Server, null);
 
         await _db.AddBanAsync(banDef);
+        OnBanCreated?.Invoke(banDef); // Trauma
 
         if (_cfg.GetCVar(CCVars.ServerBanResetLastReadRules))
         {
@@ -276,7 +277,7 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
         {
             roundIds = [..banInfo.RoundIds];
         }
-        else if (_systems.TryGetEntitySystem<GameTicker>(out var ticker) && ticker.RoundId != 0)
+        else if (_systems.TryGetEntitySystem<ServerGameTicker>(out var ticker) && ticker.RoundId != 0)
         {
             roundIds = [ticker.RoundId];
         }
@@ -299,7 +300,7 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
             GetSeverityForServerBan(banInfo, CCVars.ServerBanDefaultSeverity),
             banInfo.BanningAdmin,
             null,
-            roles: roleBans), expires);
+            roles: roleBans).WithWebhookReason(banInfo.WebhookReason), expires); // Trauma - set WebhookReason
     }
 
     private async Task<TimeSpan> GetPlayTime(CreateBanInfo banInfo)
@@ -347,6 +348,7 @@ public sealed partial class BanManager : IBanManager, IPostInjectInit
     private async Task AddRoleBan(BanDef banDef)
     {
         banDef = await _db.AddBanAsync(banDef);
+        OnBanCreated?.Invoke(banDef); // Trauma
 
         foreach (var user in banDef.UserIds)
         {

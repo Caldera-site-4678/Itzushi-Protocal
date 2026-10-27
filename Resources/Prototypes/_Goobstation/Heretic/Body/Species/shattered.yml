@@ -24,6 +24,11 @@
       Brain: OrganHumanBrain
   - type: HumanoidProfile
     species: Shattered
+  - type: AnimatedEmotesBlacklist
+    blacklist:
+    - Cry
+    - Blush
+    - Tongue
 
 - type: entity
   save: false
@@ -36,6 +41,7 @@
   - MobCombat
   - MobAtmosStandard
   - MobFlammable
+  - MobNightVision
   id: MobShattered
   components:
   - type: FootprintOwner
@@ -79,11 +85,9 @@
         Cellular: -2
         Holy: -2
   - type: Targeting
-  - type: PressureImmunity
-  - type: NightVision
-    color: "#177698"
-    activateSound: null
-    deactivateSound: null
+  - type: PermanentStatusEffects
+    statusEffects:
+    - StatusEffectPressureImmunity
   - type: ZombieImmune
   - type: MobThresholds
     thresholds:
@@ -138,11 +142,8 @@
     - Drunk
     - SlurredSpeech
     - RatvarianLanguage
-    - PressureImmunity
-    - Muted
     - Pacified
     - StaminaModifier
-    - Adrenaline
   - type: Identity
   - type: IdExaminable
   - type: Hands
@@ -182,10 +183,7 @@
     speechSounds: null
   - type: DamageForceSay
   - type: Vocal
-    sounds:
-      Male: MaleHuman
-      Female: FemaleHuman
-      Unsexed: MaleHuman
+    emoteSounds: MaleHuman
   - type: LanguageSpeaker
     speaks:
     - TauCetiBasic
@@ -207,8 +205,8 @@
     damagePenalty: 0.2
   - type: ExaminableCharacter
   - type: Stamina
-    baseCritThreshold: 200
-    animationThreshold: 100
+    baseCritThreshold: 300
+    animationThreshold: 150
   - type: FootstepModifier
     footstepSoundCollection:
       path: /Audio/Effects/glass_step.ogg
@@ -217,6 +215,7 @@
         volume: -8
   - type: Insulated
   - type: FlashImmunity
+    showInExamine: false
   - type: FlashSoundSuppression
     protectionRange: 0
   - type: CollectiveMind
@@ -250,6 +249,8 @@
     species: Shattered
   - type: Woundable
     canBleed: false
+    traumaDeductions:
+      Dismemberment: 1
   - type: WoundableVisuals
     damageGroupColors:
       Brute: "#000000"
@@ -284,8 +285,6 @@
       Severe: 75
       Critical: 38
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 0.5
 
 - type: entity
   parent: [ OrganBaseArmLeft, OrganShatteredExternal ]
@@ -300,8 +299,6 @@
       Severe: 75
       Critical: 38
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 1.0
 
 - type: entity
   parent: [ OrganBaseArmRight, OrganShatteredExternal ]
@@ -316,8 +313,6 @@
       Severe: 75
       Critical: 38
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 1.0
 
 - type: entity
   parent: [ OrganBaseHandLeft, OrganShatteredExternal ]
@@ -332,8 +327,6 @@
       Severe: 45
       Critical: 22
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 1.0
 
 - type: entity
   parent: [ OrganBaseHandRight, OrganShatteredExternal ]
@@ -348,8 +341,6 @@
       Severe: 45
       Critical: 22
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 1.0
 
 - type: entity
   parent: [ OrganBaseLegLeft, OrganShatteredExternal ]
@@ -364,8 +355,6 @@
       Severe: 75
       Critical: 38
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 0.5
 
 - type: entity
   parent: [ OrganBaseLegRight, OrganShatteredExternal ]
@@ -380,8 +369,6 @@
       Severe: 75
       Critical: 38
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 0.5
 
 - type: entity
   parent: [ OrganBaseFootLeft, OrganShatteredExternal ]
@@ -396,8 +383,6 @@
       Severe: 45
       Critical: 22
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 0.5
 
 - type: entity
   parent: [ OrganBaseFootRight, OrganShatteredExternal ]
@@ -412,5 +397,3 @@
       Severe: 45
       Critical: 22
       Mangled: 0
-    traumaDeductions:
-      Dismemberment: 0.5

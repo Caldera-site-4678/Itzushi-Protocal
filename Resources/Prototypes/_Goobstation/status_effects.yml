@@ -17,26 +17,12 @@
   id: Brainrotted
 
 - type: statusEffect
-  id: BlurryVision
-  alwaysAllowed: true
-
-- type: statusEffect
   id: Centered
   alert: Centered
   alwaysAllowed: true
 
 - type: statusEffect
   id: Dementia
-
-- type: statusEffect
-  id: DragonPower
-  alert: DragonPower
-  alwaysAllowed: true
-
-- type: statusEffect
-  id: LossOfSurprise
-  alert: LossOfSurprise
-  alwaysAllowed: true
 
 - type: statusEffect
   id: Fleshmend

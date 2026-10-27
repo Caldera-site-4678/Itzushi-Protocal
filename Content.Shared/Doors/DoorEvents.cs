@@ -1,6 +1,8 @@
+// <Trauma>
 using Content.Shared.DoAfter;
-using Content.Shared.Doors.Components;
 using Robust.Shared.Serialization;
+// </Trauma>
+using Content.Shared.Doors.Components;
 
 namespace Content.Shared.Doors
 {
@@ -56,11 +58,14 @@ namespace Content.Shared.Doors
         /// </summary>
         public bool Partial;
         public bool PerformCollisionCheck;
+        public EntityUid? User; // Trauma
 
-        public BeforeDoorClosedEvent(bool performCollisionCheck, bool partial = false)
+        public BeforeDoorClosedEvent(bool performCollisionCheck, bool partial = false,
+            EntityUid? user = null) // Trauma
         {
             Partial = partial;
             PerformCollisionCheck = performCollisionCheck;
+            User = user; // Trauma
         }
     }
 
@@ -81,6 +86,7 @@ namespace Content.Shared.Doors
     /// </remarks>
     public sealed class BeforeDoorAutoCloseEvent : CancellableEntityEventArgs
     {
+        public float Modifier = 1f; // Trauma
     }
 
 

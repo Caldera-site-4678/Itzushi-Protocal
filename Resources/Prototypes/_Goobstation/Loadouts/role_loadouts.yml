@@ -14,6 +14,7 @@
   - Glasses
   - Trinkets
   - GroupSpeciesBreathTool
+  - AssistiveItems
   - Survival
   - NanotrasenRepresentativeGloves
   - NanotrasenRepresentativeEnvirohelm
@@ -33,14 +34,13 @@
   groups:
   - GroupTankHarness
   - RoboticistHead
-  - ScientistNeck
   - RoboticistJumpsuit
   - RoboticistBackpack
   - RoboticistOuterClothing
-  - RoboticistGloves
   - RoboticistShoes
   - RoboticistPDA
   - Glasses
+  - AssistiveItems
   - Survival
   - Trinkets
   - GroupSpeciesBreathTool
@@ -59,6 +59,7 @@
   - BrigmedicBackpack
   - SecurityShoes
   - SecurityNeck
+  - AssistiveItems
   - SurvivalSecurity
   - Trinkets
   - GroupSpeciesBreathToolSecurity
@@ -72,6 +73,7 @@
   groups:
   - RadioHostJumpsuit
   - CommonBackpack
+  - AssistiveItems
   - Survival
   - Trinkets
   - GroupSpeciesBreathTool
@@ -124,6 +126,7 @@
   - VirologistOuterClothing
   - MedicalShoes
   - VirologistPDA
+  - AssistiveItems
   - SurvivalMedical
   - Trinkets
   - GroupSpeciesBreathToolMedical

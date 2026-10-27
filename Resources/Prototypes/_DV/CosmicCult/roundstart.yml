@@ -19,11 +19,14 @@
     - !type:LinearAntagCount
       proto: CosmicCultist
       range:
-        min: 3
+        min: 5
         max: 8
       playerRatio: 7
   - type: AntagPlayerEffects
     effects:
     - !type:GrantSkills
       skills:
-        MeleeKnowledge: 60 # They like, only have melee weapons
+        KnowledgeWeaponsLongBlade: 60
+        KnowledgeWeaponsTool: 60
+  - type: DynamicRuleCost
+    cost: 150

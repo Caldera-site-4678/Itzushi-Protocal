@@ -3,8 +3,8 @@
 using Content.Shared.EntityEffects;
 using Content.Shared.Maps;
 using Content.Shared.Physics;
-using Content.Shared.Station;
 using Content.Shared.Station.Components;
+using Content.Shared.Station.Systems;
 using Robust.Shared.Random;
 
 namespace Content.Trauma.Shared.EntityEffects.Station;
@@ -18,7 +18,7 @@ public sealed partial class StationAreaEffects : EntityEffectBase<StationAreaEff
     /// Name of the area's component to query.
     /// </summary>
     [DataField(required: true)]
-    public string AreaComp = string.Empty;
+    public CompName AreaComp;
 
     /// <summary>
     /// The effects to apply to the chosen area.
@@ -44,7 +44,7 @@ public sealed partial class StationAreaEffectsSystem : EntityEffectSystem<Statio
 {
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private SharedEntityEffectsSystem _effects = default!;
-    [Dependency] private SharedStationSystem _station = default!;
+    [Dependency] private StationSystem _station = default!;
     [Dependency] private TurfSystem _turf = default!;
 
     private List<EntityUid> _areas = new();
@@ -52,7 +52,7 @@ public sealed partial class StationAreaEffectsSystem : EntityEffectSystem<Statio
     protected override void Effect(Entity<StationDataComponent> ent, ref EntityEffectEvent<StationAreaEffects> args)
     {
         var e = args.Effect;
-        var type = Factory.GetRegistration(e.AreaComp).Type;
+        var type = Factory.GetRegistration(e.AreaComp.Name).Type;
 
         // TODO: make a open areas cache somewhere...
         var station = ent.Owner;

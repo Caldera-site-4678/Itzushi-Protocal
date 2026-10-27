@@ -3,7 +3,7 @@ using System.Linq;
 using Content.IntegrationTests.Fixtures;
 using Content.Server.Ghost.Roles;
 using Content.Server.Ghost.Roles.Components;
-using Content.Shared.Ghost;
+using Content.Shared.Ghost.Components;
 using Content.Shared.Mind;
 using Content.Shared.Players;
 using Robust.Shared.Console;
@@ -25,6 +25,10 @@ public sealed class GhostRoleTests : GameTest
           components:
           - type: MindContainer
           - type: GhostRole
+            # <Trauma> - these are required now
+            name: generic-unknown-title
+            description: generic-unknown-title
+            # </Trauma>
           - type: GhostTakeoverAvailable
           - type: MobState
 
